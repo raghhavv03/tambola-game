@@ -1,121 +1,53 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useGameStore } from './store/gameStore'
+import { NumberDisplay } from './components/NumberDisplay'
+import { DrawButton } from './components/DrawButton'
+import { UndoButton } from './components/UndoButton'
+import { NumberGrid } from './components/NumberGrid'
+import { PaceIndicator } from './components/PaceIndicator'
+import mythologyData from '../themes/mythology.json'
+import type { ThemePack } from './types/theme'
+
+// Themes load from themes/*.json and get read directly — no build step turns
+// them into code. Swapping this import for another pack's JSON should be the
+// only change needed to re-skin the whole app.
+const theme = mythologyData as ThemePack
 
 function App() {
-  const [count, setCount] = useState(0)
+  const currentNumber = useGameStore((s) => s.currentNumber)
+  const called = useGameStore((s) => s.called)
+  const lastDrawnAt = useGameStore((s) => s.lastDrawnAt)
+  const draw = useGameStore((s) => s.draw)
+  const undo = useGameStore((s) => s.undo)
+
+  const phrase =
+    currentNumber !== null ? (theme.calls[String(currentNumber)]?.phrase ?? null) : null
+  const canUndo = called.size > 0
+  const gameOver = called.size >= 90
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
+    <div className="flex h-dvh flex-col bg-neutral-950 text-white">
+      <header className="flex items-center justify-between px-3 py-1">
+        <span className="text-xs tracking-widest text-white/30 uppercase">{theme.name}</span>
+        <UndoButton onUndo={undo} disabled={!canUndo} />
+      </header>
+
+      {/* min-h-0 lets this flex child actually shrink below its content size
+          instead of forcing the page taller than the viewport; overflow-y-auto
+          (not hidden) means if it still doesn't fit, it scrolls instead of
+          silently clipping the phrase — legibility over layout purity. */}
+      <main className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto">
+        <NumberDisplay currentNumber={currentNumber} phrase={phrase} />
+      </main>
+
+      <section className="max-h-[18vh] overflow-y-auto px-2 pb-2">
+        <NumberGrid called={called} />
       </section>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <footer className="flex flex-col items-center gap-1 px-4 pt-1 pb-4">
+        <PaceIndicator lastDrawnAt={lastDrawnAt} />
+        <DrawButton onDraw={draw} disabled={gameOver} />
+      </footer>
+    </div>
   )
 }
 
