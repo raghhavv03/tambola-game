@@ -1,10 +1,15 @@
 import { describe, it, expect } from 'vitest'
 import { validateTheme } from './loader'
 import { MILESTONE_KEYS } from './types'
+import { animRegistry } from '../anim/registry'
 // Real packs double as test fixtures: if either ever goes structurally bad,
 // these tests catch it before the app crashes at startup.
 import mythology from '../../themes/mythology.json'
 import plain from '../../themes/plain.json'
+
+// Same check index.ts runs at startup — a pack naming an unbuilt component
+// must fail HERE, in CI, not on someone's phone mid-game.
+const realRegistryKeys: ReadonlySet<string> = new Set(Object.keys(animRegistry))
 
 // Build a minimal-but-valid pack we can break one field at a time.
 function makeValidPack() {
@@ -33,12 +38,14 @@ function makeValidPack() {
 }
 
 describe('validateTheme', () => {
-  it('accepts the shipped mythology pack', () => {
-    expect(validateTheme(mythology, 'mythology.json').id).toBe('mythology')
+  it('accepts the shipped mythology pack against the real registry', () => {
+    expect(
+      validateTheme(mythology, 'mythology.json', realRegistryKeys).id,
+    ).toBe('mythology')
   })
 
-  it('accepts the shipped plain pack', () => {
-    expect(validateTheme(plain, 'plain.json').id).toBe('plain')
+  it('accepts the shipped plain pack against the real registry', () => {
+    expect(validateTheme(plain, 'plain.json', realRegistryKeys).id).toBe('plain')
   })
 
   it('accepts a minimal valid pack', () => {
@@ -84,6 +91,25 @@ describe('validateTheme', () => {
     expect(() => validateTheme(pack, 'test')).toThrow(
       'calls["5"]: "intensity" must be 1, 2, or 3',
     )
+  })
+
+  it('checks animations values against the app registry when provided', () => {
+    const pack = makeValidPack()
+    // makeValidPack maps its anims to component key 'anim/test/default.json',
+    // which is not a real component — fix it to a known key first.
+    pack.animations = { default: 'default' }
+    const known = new Set(['default', 'trishul'])
+    expect(validateTheme(pack, 'test', known).id).toBe('test')
+
+    pack.animations = { default: 'lottie-file.json' }
+    expect(() => validateTheme(pack, 'test', known)).toThrow(
+      'component "lottie-file.json" is not in the app\'s animation registry',
+    )
+  })
+
+  it('skips the registry check when no registry is provided', () => {
+    // Pure structural validation still passes with arbitrary string values.
+    expect(validateTheme(makeValidPack(), 'test').id).toBe('test')
   })
 
   it('reports every problem in one error, not just the first', () => {

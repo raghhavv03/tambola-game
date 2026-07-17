@@ -9,7 +9,17 @@ import { MILESTONE_KEYS } from './types'
 // Every problem found gets collected, then thrown as ONE error listing all of
 // them — an author fixing a pack wants the full damage report, not one item
 // per crash-and-rerun cycle.
-export function validateTheme(data: unknown, source: string): Theme {
+//
+// knownAnimComponents: the app's animation registry keys. When provided,
+// every animations-map VALUE must be one of them — a pack naming a component
+// that doesn't exist should die at load, not render nothing mid-game. Passed
+// as a parameter (not imported) so this module stays a pure function with no
+// app dependencies, which also keeps the tests trivial.
+export function validateTheme(
+  data: unknown,
+  source: string,
+  knownAnimComponents?: ReadonlySet<string>,
+): Theme {
   const errors: string[] = []
 
   if (typeof data !== 'object' || data === null) {
@@ -31,8 +41,13 @@ export function validateTheme(data: unknown, source: string): Theme {
     errors.push('"animations" must be an object')
   } else {
     for (const [key, value] of Object.entries(animations)) {
-      if (typeof value !== 'string') {
-        errors.push(`animations["${key}"] must be a string path`)
+      if (typeof value !== 'string' || value === '') {
+        errors.push(`animations["${key}"] must be a component key (string)`)
+      } else if (knownAnimComponents && !knownAnimComponents.has(value)) {
+        errors.push(
+          `animations["${key}"]: component "${value}" is not in the app's ` +
+            `animation registry (known: ${[...knownAnimComponents].join(', ')})`,
+        )
       }
       animKeys.add(key)
     }

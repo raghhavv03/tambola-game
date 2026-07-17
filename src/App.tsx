@@ -6,12 +6,19 @@ import { UndoButton } from './components/UndoButton'
 import { NumberGrid } from './components/NumberGrid'
 import { PaceIndicator } from './components/PaceIndicator'
 import { ThemePicker } from './components/ThemePicker'
+import { ReactionLayer } from './components/ReactionLayer'
+import { AnimPreview } from './components/AnimPreview'
 import { themes } from './themes'
+
+// Dev/QA escape hatch: /?anim opens the reaction preview instead of the game.
+// Checked once at module load — it's a URL, it doesn't change mid-session.
+const showAnimPreview = new URLSearchParams(window.location.search).has('anim')
 
 function App() {
   const currentNumber = useGameStore((s) => s.currentNumber)
   const called = useGameStore((s) => s.called)
   const lastDrawnAt = useGameStore((s) => s.lastDrawnAt)
+  const drawSeq = useGameStore((s) => s.drawSeq)
   const draw = useGameStore((s) => s.draw)
   const undo = useGameStore((s) => s.undo)
 
@@ -22,8 +29,10 @@ function App() {
   // long as themeId came from the picker.
   const theme = themes.find((t) => t.id === themeId) ?? themes[0]
 
-  const phrase =
-    currentNumber !== null ? theme.calls[String(currentNumber)].phrase : null
+  if (showAnimPreview) return <AnimPreview />
+
+  const call = currentNumber !== null ? theme.calls[String(currentNumber)] : null
+  const phrase = call?.phrase ?? null
   const canUndo = called.size > 0
   const gameOver = called.size >= 90
 
@@ -50,6 +59,14 @@ function App() {
         <PaceIndicator lastDrawnAt={lastDrawnAt} />
         <DrawButton onDraw={draw} disabled={gameOver} />
       </footer>
+
+      {/* One reaction per draw. The theme owns the indirection: call.anim is a
+          theme-local name, animations[] maps it to an app component key. */}
+      <ReactionLayer
+        animKey={call ? theme.animations[call.anim] : null}
+        intensity={call?.intensity ?? 1}
+        playKey={drawSeq}
+      />
     </div>
   )
 }

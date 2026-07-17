@@ -47,7 +47,9 @@ export interface Theme {
   locale: string
   /** One line, shown in the theme picker. */
   description: string
-  /** Theme-owned animation registry. Renderer does theme.animations[anim]. */
+  /** Theme-owned indirection: maps this theme's anim names to APP COMPONENT
+   *  KEYS (src/anim/registry.ts) — not file paths. Renderer resolves
+   *  registry[theme.animations[call.anim]] and stays theme-agnostic. */
   animations: Record<string, string>
   /** All six standard dividends — no more, no less. */
   milestones: Record<MilestoneKey, ThemeMilestone>

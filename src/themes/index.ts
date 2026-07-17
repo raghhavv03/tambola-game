@@ -8,14 +8,19 @@
 
 import type { Theme } from './types'
 import { validateTheme } from './loader'
+import { animRegistry } from '../anim/registry'
 
 const packFiles = import.meta.glob<{ default: unknown }>(
   '../../themes/*.json',
   { eager: true },
 )
 
+// Packs are validated against the real animation registry, so an animations
+// value naming a component we don't ship fails here, at startup.
+const knownAnims: ReadonlySet<string> = new Set(Object.keys(animRegistry))
+
 export const themes: Theme[] = Object.entries(packFiles)
-  .map(([path, module]) => validateTheme(module.default, path))
+  .map(([path, module]) => validateTheme(module.default, path, knownAnims))
   // Stable alphabetical order by display name so the picker doesn't reshuffle
   // depending on filesystem enumeration order.
   .sort((a, b) => a.name.localeCompare(b.name))

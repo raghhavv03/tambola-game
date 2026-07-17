@@ -194,9 +194,9 @@ Same rules, one addition: phrases reference the actual people at the table.
   "name": "Puranic",              // display name
   "locale": "hi-IN-latn",         // roman Hinglish
   "description": "...",           // one line, shown in theme picker
-  "animations": {                 // theme-owned. renderer does theme.animations[call.anim]
-    "trishul": "anim/myth/trishul.json",
-    "default": "anim/myth/default.json"
+  "animations": {                 // theme-owned. renderer does registry[theme.animations[call.anim]]
+    "trishul": "trishul",         // value = key into the app's animation component
+    "default": "default"          //   registry (src/anim/registry.ts) — NOT a file path
   },
   "milestones": {                 // reactions for the six standard dividends
     "earlyFive":  { "phrase": "...", "anim": "..." },

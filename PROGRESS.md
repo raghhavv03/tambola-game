@@ -56,13 +56,34 @@ This file is state, not rules — update it at the end of each phase.
 - 10 loader tests (shipped packs as fixtures + one-field-at-a-time breakage);
   29 total passing. Old `src/types/theme.ts` deleted (superseded)
 
+**Phase 4 — reaction layer**
+- `src/anim/` — 16 animation components (one per mythology animations key:
+  default, om, trishul, chakra, diya, conch, fire_ring, damru, lotus, bow,
+  peacock, swan, stars, mountain, thali, aarti), all inline SVG + Motion,
+  original abstract geometry only (no glyph tracing, no figures, no third-party
+  imagery). `shared.ts` holds the one intensity table: 1 = 0.45s accent,
+  2 = 0.8s flourish, 3 = 1.25s full-screen — every reaction fades itself out
+  inside its budget (hard ceiling ~1.5s; the host talks over it)
+- `src/anim/registry.ts` — key → component map. Theme `animations` values are
+  now COMPONENT KEYS (not file paths, no Lottie); loader validates every value
+  against the registry at startup, tests validate shipped packs against the
+  real registry in CI
+- `src/components/ReactionLayer.tsx` — fixed pointer-events-none overlay,
+  keyed on `drawSeq` (store counter that only draw() bumps — undo never
+  replays). `useReducedMotion` disables the whole layer
+- `/?anim` — dev/QA preview harness (`AnimPreview.tsx`): replay any key at any
+  intensity. Not a player surface; exists because sub-1.5s reactions can't be
+  reviewed by drawing random numbers
+- THEME_PACK_GUIDE.md §7 updated: animations values documented as registry keys
+
 ## Not started
 
 - No `/t` player ticket route (THE AIRGAP requires this stay fetch/socket-free)
 - No room/called-numbers board screen (separate from the host's own view)
 - No claim-verification UI (engine function exists, no host-facing trigger)
 - No persistence of a game (seed/history) beyond in-memory state
-- No animation player — theme's `anim` keys are unused; phrase text only
+- No milestone reactions — `milestones` phrases/anims exist in packs and are
+  validated, but nothing triggers them (needs the claim-verification UI first)
 
 ## Known decisions worth knowing before continuing
 
@@ -73,6 +94,10 @@ This file is state, not rules — update it at the end of each phase.
   PRNG copy.
 - Tests use fixed seeds for reproducibility; if a test fails, the seed in the
   failure message is the reproduction case — don't just re-run and hope.
+- New theme pack = drop a JSON file in `themes/`, nothing else. If a task ever
+  seems to need touching a component to add a theme, the schema/loader is
+  wrong — fix `src/themes/`, not the component. `note`/`mech` are build-time
+  only; don't add app code that reads them.
 
 ## Suggested next-session prompt
 

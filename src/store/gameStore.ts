@@ -16,6 +16,9 @@ interface GameState {
   /** Timestamp (ms) of the last draw/undo. Drives the pace indicator. Null
    *  before the first draw, so the nudge never shows on an empty board. */
   lastDrawnAt: number | null
+  /** Counts DRAWS only — undo leaves it alone. The reaction layer keys off
+   *  this, so a reaction plays once per draw and never replays on undo. */
+  drawSeq: number
   draw: () => void
   undo: () => void
 }
@@ -29,16 +32,18 @@ export const useGameStore = create<GameState>((set) => ({
   history: [],
   called: new Set(),
   lastDrawnAt: null,
+  drawSeq: 0,
 
   draw: () => {
     const number = caller.draw()
     if (number === null) return // all 90 already called, nothing to do
-    set({
+    set((state) => ({
       currentNumber: number,
       history: caller.history,
       called: caller.called,
       lastDrawnAt: Date.now(),
-    })
+      drawSeq: state.drawSeq + 1,
+    }))
   },
 
   undo: () => {

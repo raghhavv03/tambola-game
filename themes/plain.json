@@ -4,7 +4,7 @@
   "locale": "en-IN",
   "description": "No theme, no phrases — just the numbers, called straight.",
   "animations": {
-    "default": "anim/plain/default.json"
+    "default": "default"
   },
   "milestones": {
     "earlyFive": {
