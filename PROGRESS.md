@@ -38,6 +38,24 @@ This file is state, not rules — update it at the end of each phase.
 - Verified in-browser at mobile (375x812) and landscape (812x375): number/phrase/
   grid/button all fit without clipping or overlap at both
 
+**Phase 3 — theme system**
+- `src/themes/types.ts` — `Theme` type mirroring THEME_PACK_GUIDE.md §7 exactly;
+  `note`/`mech` typed optional and documented BUILD-TIME ONLY (app never reads
+  them — plain.json omits them entirely, proving nothing depends on them)
+- `src/themes/loader.ts` — `validateTheme()`: all 90 call keys, all 6 milestones,
+  every `anim` (calls + milestones) must resolve in the theme's own `animations`
+  map, intensity 1-3. Collects ALL problems and throws ONE error listing them —
+  a missing key is a crash at load, never a silent fallback
+- `src/themes/index.ts` — registry via `import.meta.glob('../../themes/*.json',
+  { eager: true })`: adding a pack = dropping a JSON file in `themes/`, zero code
+  edits anywhere. Every pack validated eagerly at app startup
+- `src/components/ThemePicker.tsx` — select in the header, renders whatever the
+  registry loaded; switching mid-game swaps phrases only, never the draw order
+- `themes/plain.json` — deliberately minimal second pack ("Number N." for all 90)
+  proving the abstraction: adding it touched NO component code
+- 10 loader tests (shipped packs as fixtures + one-field-at-a-time breakage);
+  29 total passing. Old `src/types/theme.ts` deleted (superseded)
+
 ## Not started
 
 - No `/t` player ticket route (THE AIRGAP requires this stay fetch/socket-free)

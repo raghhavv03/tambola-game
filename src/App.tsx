@@ -1,16 +1,12 @@
+import { useState } from 'react'
 import { useGameStore } from './store/gameStore'
 import { NumberDisplay } from './components/NumberDisplay'
 import { DrawButton } from './components/DrawButton'
 import { UndoButton } from './components/UndoButton'
 import { NumberGrid } from './components/NumberGrid'
 import { PaceIndicator } from './components/PaceIndicator'
-import mythologyData from '../themes/mythology.json'
-import type { ThemePack } from './types/theme'
-
-// Themes load from themes/*.json and get read directly — no build step turns
-// them into code. Swapping this import for another pack's JSON should be the
-// only change needed to re-skin the whole app.
-const theme = mythologyData as ThemePack
+import { ThemePicker } from './components/ThemePicker'
+import { themes } from './themes'
 
 function App() {
   const currentNumber = useGameStore((s) => s.currentNumber)
@@ -19,15 +15,22 @@ function App() {
   const draw = useGameStore((s) => s.draw)
   const undo = useGameStore((s) => s.undo)
 
+  // Which pack is active. UI state only — switching themes mid-game changes
+  // the phrases, not the draw order, so it's deliberately not in the game store.
+  const [themeId, setThemeId] = useState(themes[0].id)
+  // The registry validated every pack at load, so this lookup can't miss as
+  // long as themeId came from the picker.
+  const theme = themes.find((t) => t.id === themeId) ?? themes[0]
+
   const phrase =
-    currentNumber !== null ? (theme.calls[String(currentNumber)]?.phrase ?? null) : null
+    currentNumber !== null ? theme.calls[String(currentNumber)].phrase : null
   const canUndo = called.size > 0
   const gameOver = called.size >= 90
 
   return (
     <div className="flex h-dvh flex-col bg-neutral-950 text-white">
-      <header className="flex items-center justify-between px-3 py-1">
-        <span className="text-xs tracking-widest text-white/30 uppercase">{theme.name}</span>
+      <header className="flex items-center justify-between gap-2 px-3 py-1">
+        <ThemePicker themes={themes} currentId={themeId} onChange={setThemeId} />
         <UndoButton onUndo={undo} disabled={!canUndo} />
       </header>
 

@@ -1,0 +1,577 @@
+{
+  "id": "plain",
+  "name": "Plain",
+  "locale": "en-IN",
+  "description": "No theme, no phrases — just the numbers, called straight.",
+  "animations": {
+    "default": "anim/plain/default.json"
+  },
+  "milestones": {
+    "earlyFive": {
+      "phrase": "Early Five!",
+      "anim": "default"
+    },
+    "topLine": {
+      "phrase": "Top Line!",
+      "anim": "default"
+    },
+    "middleLine": {
+      "phrase": "Middle Line!",
+      "anim": "default"
+    },
+    "bottomLine": {
+      "phrase": "Bottom Line!",
+      "anim": "default"
+    },
+    "corners": {
+      "phrase": "Corners!",
+      "anim": "default"
+    },
+    "fullHouse": {
+      "phrase": "Full House!",
+      "anim": "default"
+    }
+  },
+  "calls": {
+    "1": {
+      "phrase": "Number 1.",
+      "sub": "1",
+      "anim": "default",
+      "intensity": 1
+    },
+    "2": {
+      "phrase": "Number 2.",
+      "sub": "2",
+      "anim": "default",
+      "intensity": 1
+    },
+    "3": {
+      "phrase": "Number 3.",
+      "sub": "3",
+      "anim": "default",
+      "intensity": 1
+    },
+    "4": {
+      "phrase": "Number 4.",
+      "sub": "4",
+      "anim": "default",
+      "intensity": 1
+    },
+    "5": {
+      "phrase": "Number 5.",
+      "sub": "5",
+      "anim": "default",
+      "intensity": 1
+    },
+    "6": {
+      "phrase": "Number 6.",
+      "sub": "6",
+      "anim": "default",
+      "intensity": 1
+    },
+    "7": {
+      "phrase": "Number 7.",
+      "sub": "7",
+      "anim": "default",
+      "intensity": 1
+    },
+    "8": {
+      "phrase": "Number 8.",
+      "sub": "8",
+      "anim": "default",
+      "intensity": 1
+    },
+    "9": {
+      "phrase": "Number 9.",
+      "sub": "9",
+      "anim": "default",
+      "intensity": 1
+    },
+    "10": {
+      "phrase": "Number 10.",
+      "sub": "10",
+      "anim": "default",
+      "intensity": 1
+    },
+    "11": {
+      "phrase": "Number 11.",
+      "sub": "11",
+      "anim": "default",
+      "intensity": 1
+    },
+    "12": {
+      "phrase": "Number 12.",
+      "sub": "12",
+      "anim": "default",
+      "intensity": 1
+    },
+    "13": {
+      "phrase": "Number 13.",
+      "sub": "13",
+      "anim": "default",
+      "intensity": 1
+    },
+    "14": {
+      "phrase": "Number 14.",
+      "sub": "14",
+      "anim": "default",
+      "intensity": 1
+    },
+    "15": {
+      "phrase": "Number 15.",
+      "sub": "15",
+      "anim": "default",
+      "intensity": 1
+    },
+    "16": {
+      "phrase": "Number 16.",
+      "sub": "16",
+      "anim": "default",
+      "intensity": 1
+    },
+    "17": {
+      "phrase": "Number 17.",
+      "sub": "17",
+      "anim": "default",
+      "intensity": 1
+    },
+    "18": {
+      "phrase": "Number 18.",
+      "sub": "18",
+      "anim": "default",
+      "intensity": 1
+    },
+    "19": {
+      "phrase": "Number 19.",
+      "sub": "19",
+      "anim": "default",
+      "intensity": 1
+    },
+    "20": {
+      "phrase": "Number 20.",
+      "sub": "20",
+      "anim": "default",
+      "intensity": 1
+    },
+    "21": {
+      "phrase": "Number 21.",
+      "sub": "21",
+      "anim": "default",
+      "intensity": 1
+    },
+    "22": {
+      "phrase": "Number 22.",
+      "sub": "22",
+      "anim": "default",
+      "intensity": 1
+    },
+    "23": {
+      "phrase": "Number 23.",
+      "sub": "23",
+      "anim": "default",
+      "intensity": 1
+    },
+    "24": {
+      "phrase": "Number 24.",
+      "sub": "24",
+      "anim": "default",
+      "intensity": 1
+    },
+    "25": {
+      "phrase": "Number 25.",
+      "sub": "25",
+      "anim": "default",
+      "intensity": 1
+    },
+    "26": {
+      "phrase": "Number 26.",
+      "sub": "26",
+      "anim": "default",
+      "intensity": 1
+    },
+    "27": {
+      "phrase": "Number 27.",
+      "sub": "27",
+      "anim": "default",
+      "intensity": 1
+    },
+    "28": {
+      "phrase": "Number 28.",
+      "sub": "28",
+      "anim": "default",
+      "intensity": 1
+    },
+    "29": {
+      "phrase": "Number 29.",
+      "sub": "29",
+      "anim": "default",
+      "intensity": 1
+    },
+    "30": {
+      "phrase": "Number 30.",
+      "sub": "30",
+      "anim": "default",
+      "intensity": 1
+    },
+    "31": {
+      "phrase": "Number 31.",
+      "sub": "31",
+      "anim": "default",
+      "intensity": 1
+    },
+    "32": {
+      "phrase": "Number 32.",
+      "sub": "32",
+      "anim": "default",
+      "intensity": 1
+    },
+    "33": {
+      "phrase": "Number 33.",
+      "sub": "33",
+      "anim": "default",
+      "intensity": 1
+    },
+    "34": {
+      "phrase": "Number 34.",
+      "sub": "34",
+      "anim": "default",
+      "intensity": 1
+    },
+    "35": {
+      "phrase": "Number 35.",
+      "sub": "35",
+      "anim": "default",
+      "intensity": 1
+    },
+    "36": {
+      "phrase": "Number 36.",
+      "sub": "36",
+      "anim": "default",
+      "intensity": 1
+    },
+    "37": {
+      "phrase": "Number 37.",
+      "sub": "37",
+      "anim": "default",
+      "intensity": 1
+    },
+    "38": {
+      "phrase": "Number 38.",
+      "sub": "38",
+      "anim": "default",
+      "intensity": 1
+    },
+    "39": {
+      "phrase": "Number 39.",
+      "sub": "39",
+      "anim": "default",
+      "intensity": 1
+    },
+    "40": {
+      "phrase": "Number 40.",
+      "sub": "40",
+      "anim": "default",
+      "intensity": 1
+    },
+    "41": {
+      "phrase": "Number 41.",
+      "sub": "41",
+      "anim": "default",
+      "intensity": 1
+    },
+    "42": {
+      "phrase": "Number 42.",
+      "sub": "42",
+      "anim": "default",
+      "intensity": 1
+    },
+    "43": {
+      "phrase": "Number 43.",
+      "sub": "43",
+      "anim": "default",
+      "intensity": 1
+    },
+    "44": {
+      "phrase": "Number 44.",
+      "sub": "44",
+      "anim": "default",
+      "intensity": 1
+    },
+    "45": {
+      "phrase": "Number 45.",
+      "sub": "45",
+      "anim": "default",
+      "intensity": 1
+    },
+    "46": {
+      "phrase": "Number 46.",
+      "sub": "46",
+      "anim": "default",
+      "intensity": 1
+    },
+    "47": {
+      "phrase": "Number 47.",
+      "sub": "47",
+      "anim": "default",
+      "intensity": 1
+    },
+    "48": {
+      "phrase": "Number 48.",
+      "sub": "48",
+      "anim": "default",
+      "intensity": 1
+    },
+    "49": {
+      "phrase": "Number 49.",
+      "sub": "49",
+      "anim": "default",
+      "intensity": 1
+    },
+    "50": {
+      "phrase": "Number 50.",
+      "sub": "50",
+      "anim": "default",
+      "intensity": 1
+    },
+    "51": {
+      "phrase": "Number 51.",
+      "sub": "51",
+      "anim": "default",
+      "intensity": 1
+    },
+    "52": {
+      "phrase": "Number 52.",
+      "sub": "52",
+      "anim": "default",
+      "intensity": 1
+    },
+    "53": {
+      "phrase": "Number 53.",
+      "sub": "53",
+      "anim": "default",
+      "intensity": 1
+    },
+    "54": {
+      "phrase": "Number 54.",
+      "sub": "54",
+      "anim": "default",
+      "intensity": 1
+    },
+    "55": {
+      "phrase": "Number 55.",
+      "sub": "55",
+      "anim": "default",
+      "intensity": 1
+    },
+    "56": {
+      "phrase": "Number 56.",
+      "sub": "56",
+      "anim": "default",
+      "intensity": 1
+    },
+    "57": {
+      "phrase": "Number 57.",
+      "sub": "57",
+      "anim": "default",
+      "intensity": 1
+    },
+    "58": {
+      "phrase": "Number 58.",
+      "sub": "58",
+      "anim": "default",
+      "intensity": 1
+    },
+    "59": {
+      "phrase": "Number 59.",
+      "sub": "59",
+      "anim": "default",
+      "intensity": 1
+    },
+    "60": {
+      "phrase": "Number 60.",
+      "sub": "60",
+      "anim": "default",
+      "intensity": 1
+    },
+    "61": {
+      "phrase": "Number 61.",
+      "sub": "61",
+      "anim": "default",
+      "intensity": 1
+    },
+    "62": {
+      "phrase": "Number 62.",
+      "sub": "62",
+      "anim": "default",
+      "intensity": 1
+    },
+    "63": {
+      "phrase": "Number 63.",
+      "sub": "63",
+      "anim": "default",
+      "intensity": 1
+    },
+    "64": {
+      "phrase": "Number 64.",
+      "sub": "64",
+      "anim": "default",
+      "intensity": 1
+    },
+    "65": {
+      "phrase": "Number 65.",
+      "sub": "65",
+      "anim": "default",
+      "intensity": 1
+    },
+    "66": {
+      "phrase": "Number 66.",
+      "sub": "66",
+      "anim": "default",
+      "intensity": 1
+    },
+    "67": {
+      "phrase": "Number 67.",
+      "sub": "67",
+      "anim": "default",
+      "intensity": 1
+    },
+    "68": {
+      "phrase": "Number 68.",
+      "sub": "68",
+      "anim": "default",
+      "intensity": 1
+    },
+    "69": {
+      "phrase": "Number 69.",
+      "sub": "69",
+      "anim": "default",
+      "intensity": 1
+    },
+    "70": {
+      "phrase": "Number 70.",
+      "sub": "70",
+      "anim": "default",
+      "intensity": 1
+    },
+    "71": {
+      "phrase": "Number 71.",
+      "sub": "71",
+      "anim": "default",
+      "intensity": 1
+    },
+    "72": {
+      "phrase": "Number 72.",
+      "sub": "72",
+      "anim": "default",
+      "intensity": 1
+    },
+    "73": {
+      "phrase": "Number 73.",
+      "sub": "73",
+      "anim": "default",
+      "intensity": 1
+    },
+    "74": {
+      "phrase": "Number 74.",
+      "sub": "74",
+      "anim": "default",
+      "intensity": 1
+    },
+    "75": {
+      "phrase": "Number 75.",
+      "sub": "75",
+      "anim": "default",
+      "intensity": 1
+    },
+    "76": {
+      "phrase": "Number 76.",
+      "sub": "76",
+      "anim": "default",
+      "intensity": 1
+    },
+    "77": {
+      "phrase": "Number 77.",
+      "sub": "77",
+      "anim": "default",
+      "intensity": 1
+    },
+    "78": {
+      "phrase": "Number 78.",
+      "sub": "78",
+      "anim": "default",
+      "intensity": 1
+    },
+    "79": {
+      "phrase": "Number 79.",
+      "sub": "79",
+      "anim": "default",
+      "intensity": 1
+    },
+    "80": {
+      "phrase": "Number 80.",
+      "sub": "80",
+      "anim": "default",
+      "intensity": 1
+    },
+    "81": {
+      "phrase": "Number 81.",
+      "sub": "81",
+      "anim": "default",
+      "intensity": 1
+    },
+    "82": {
+      "phrase": "Number 82.",
+      "sub": "82",
+      "anim": "default",
+      "intensity": 1
+    },
+    "83": {
+      "phrase": "Number 83.",
+      "sub": "83",
+      "anim": "default",
+      "intensity": 1
+    },
+    "84": {
+      "phrase": "Number 84.",
+      "sub": "84",
+      "anim": "default",
+      "intensity": 1
+    },
+    "85": {
+      "phrase": "Number 85.",
+      "sub": "85",
+      "anim": "default",
+      "intensity": 1
+    },
+    "86": {
+      "phrase": "Number 86.",
+      "sub": "86",
+      "anim": "default",
+      "intensity": 1
+    },
+    "87": {
+      "phrase": "Number 87.",
+      "sub": "87",
+      "anim": "default",
+      "intensity": 1
+    },
+    "88": {
+      "phrase": "Number 88.",
+      "sub": "88",
+      "anim": "default",
+      "intensity": 1
+    },
+    "89": {
+      "phrase": "Number 89.",
+      "sub": "89",
+      "anim": "default",
+      "intensity": 1
+    },
+    "90": {
+      "phrase": "Number 90.",
+      "sub": "90",
+      "anim": "default",
+      "intensity": 1
+    }
+  }
+}
