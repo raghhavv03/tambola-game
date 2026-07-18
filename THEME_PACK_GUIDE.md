@@ -194,25 +194,46 @@ Same rules, one addition: phrases reference the actual people at the table.
   "name": "Puranic",              // display name
   "locale": "hi-IN-latn",         // roman Hinglish
   "description": "...",           // one line, shown in theme picker
-  "animations": {                 // theme-owned. renderer does registry[theme.animations[call.anim]]
-    "trishul": "trishul",         // value = key into the app's animation component
-    "default": "default"          //   registry (src/anim/registry.ts) — NOT a file path
+  "accent": "#FF9933",            // optional "#rrggbb". Room-display accent (phrase color,
+                                  //   called-board fill). Pick a LIGHT saturated color — it
+                                  //   sits on near-black AND under near-black text. Omit to
+                                  //   get the app default.
+  "display": {                    // optional. The room display's ENTIRE visual identity —
+                                  //   pure color tokens, all "#rrggbb". Omit for the app's
+                                  //   default stage. The loader validates format AND contrast:
+                                  //   a palette whose number would be unreadable from the back
+                                  //   of the room fails AT LOAD, never silently. Floors:
+                                  //   number/background 7:1, phrase/background 4.5:1,
+                                  //   boardCalledText/boardCalled 4.5:1,
+                                  //   boardUncalledText/boardUncalled 3:1.
+    "background": "#1C0F06",      // REQUIRED. The flat field behind the current number.
+    "backdrop": "#070301",        // optional. Edge wash — the stage darkens toward its edges;
+                                  //   the center stays pure `background`. Omit = flat stage.
+    "number": "#FFF5E6",          // REQUIRED. The current number.
+    "halo": "#FF9933",            // optional. Glow AROUND the number's strokes (outside the
+                                  //   glyph — can never sit between number and field).
+    "phrase": "#FFB03B",          // REQUIRED. The themed phrase under the number.
+    "panel": "#2A1708",           // optional. Card behind the recent-calls tiles.
+    "boardCalled": "#FF9933",     // REQUIRED. Called cell fill on the 1-90 board.
+    "boardCalledText": "#1C0F06", // REQUIRED. Numeral on a called cell.
+    "boardUncalled": "#2A1708",   // REQUIRED. Uncalled cell fill.
+    "boardUncalledText": "#D9A96A", // REQUIRED. Numeral on an uncalled cell (quiet on purpose).
+    "ring": "#FFE8C7",            // optional. Ring around the freshest call on the board.
+    "chrome": "#C69C6D"           // optional. Header/footer text.
   },
-  "milestones": {                 // reactions for the six standard dividends
-    "earlyFive":  { "phrase": "...", "anim": "..." },
-    "topLine":    { "phrase": "...", "anim": "..." },
-    "middleLine": { "phrase": "...", "anim": "..." },
-    "bottomLine": { "phrase": "...", "anim": "..." },
-    "corners":    { "phrase": "...", "anim": "..." },
-    "fullHouse":  { "phrase": "...", "anim": "..." }
+  "milestones": {                 // phrases for the six standard dividends (no animations)
+    "earlyFive":  { "phrase": "..." },
+    "topLine":    { "phrase": "..." },
+    "middleLine": { "phrase": "..." },
+    "bottomLine": { "phrase": "..." },
+    "corners":    { "phrase": "..." },
+    "fullHouse":  { "phrase": "..." }
   },
   "calls": {
     "7": {
       "phrase": "Saat pheras, saat vachan — number 7, saat!",  // spoken verbatim
       "sub": "7",              // big display glyph
       "audio": "vo/myth/7.m4a",// optional; TTS fallback if absent
-      "anim": "fire_ring",     // key into this theme's animations map
-      "intensity": 3,          // 1 plain | 2 working | 3 hero — drives reaction size
       "mech": "REF",           // REF | SHAPE | SOUND | COMP — authoring discipline
       "note": "Seven vows of the Hindu wedding. Every married person reacts."
     }
@@ -227,21 +248,25 @@ payload ever matters; it won't.
 **Every theme must define all 90 keys and all 6 milestones.** A missing key is a crash,
 not a fallback.
 
-**Animations are theme-owned by design.** The renderer stays theme-agnostic —
-`theme.animations[call.anim]` — so adding a theme never touches component code.
-If adding a theme requires a code change, the schema has been violated; fix the schema,
-not the component.
+**The display look is theme-owned by design.** The renderer reads `display` tokens
+generically (CSS variables) and contains no per-theme branches — so a new theme's whole
+stage look is authored here, in JSON, never in a component. If adding a theme requires
+a code change, the schema has been violated; fix the schema, not the component.
+
+**Reaction animations were removed** (they didn't earn their place). Legacy `animations`
+maps and `anim`/`intensity` fields in old packs are ignored by the loader — safe to
+leave, better to strip.
 
 ---
 
 ## 8. QA checklist — run before shipping any pack
 
 - [ ] All 90 keys present, all 6 milestones present
-- [ ] Every `anim` value exists in this theme's `animations` map
+- [ ] If `display` present: all 7 required tokens present, every pair clears its
+      contrast floor (the loader enforces this — run the app or `npm test` to check)
 - [ ] Every phrase ends with the number, spoken plainly
 - [ ] Every phrase read aloud; none exceeds ~3 seconds
 - [ ] Every `REF` verified against a source (not recall)
-- [ ] Intensity distribution ≈ 25–30 threes/strong-twos, ~40 twos, ~20–25 ones
 - [ ] Zero copyrighted quotes, lyrics, dialogues, brands, trademarked characters
 - [ ] Zero money/stakes/betting references
 - [ ] Zero body, age, marriage, or income jokes

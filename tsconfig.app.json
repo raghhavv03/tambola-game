@@ -23,5 +23,10 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  /* Tests are type-checked by tsconfig.test.json instead, because some of them
+     (src/player/airgap.test.ts) need Node's fs/path types to walk the import graph.
+     Keeping those types out of the app project means app code physically cannot
+     reach for a Node API by accident. */
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]
 }

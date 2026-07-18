@@ -48,6 +48,14 @@ Themes load from `themes/*.json`. Renderer must stay theme-agnostic: adding a th
 must never require a component change. If it does, the schema is broken — fix the
 schema.
 
+The app has TWO entry points, dynamically imported in `src/main.tsx`: the host screen
+(`src/App.tsx`) and the player ticket (`src/player/PlayerApp.tsx`, route `/t`). They
+are separate bundles with separate module graphs on purpose — that split is how THE
+AIRGAP is enforced structurally rather than by good intentions.
+`src/player/airgap.test.ts` walks the player's import graph and fails the build if it
+can reach the caller, the store, or any network API. If a change makes that test fail,
+the change is wrong, not the test.
+
 Game logic lives in `src/engine/` — pure TypeScript, no React, no app imports, no
 network/storage. `caller.ts` (number draw order) and `ticket.ts` (ticket generation +
 claim verification) share one seeded PRNG (`rng.ts`). See PROGRESS.md for what's built

@@ -6,30 +6,50 @@ import { UndoButton } from './components/UndoButton'
 import { NumberGrid } from './components/NumberGrid'
 import { PaceIndicator } from './components/PaceIndicator'
 import { ThemePicker } from './components/ThemePicker'
-import { ReactionLayer } from './components/ReactionLayer'
-import { AnimPreview } from './components/AnimPreview'
+import { DisplayMode } from './components/DisplayMode'
+import { TicketsPanel } from './components/TicketsPanel'
+import { VerifierPanel } from './components/VerifierPanel'
+import { PrintSheet } from './components/PrintSheet'
+import { useTicketSetStore } from './store/ticketSetStore'
 import { themes } from './themes'
 
-// Dev/QA escape hatch: /?anim opens the reaction preview instead of the game.
 // Checked once at module load — it's a URL, it doesn't change mid-session.
-const showAnimPreview = new URLSearchParams(window.location.search).has('anim')
+const urlParams = new URLSearchParams(window.location.search)
+
+// /?display=1 renders the room display (TV/projector) instead of the host
+// controls — same app, same store, same tab; see DisplayMode.tsx. Optional
+// &theme=<id> picks the pack, since the stage has no picker chrome.
+const showDisplay = urlParams.has('display')
+const urlThemeId = urlParams.get('theme')
 
 function App() {
   const currentNumber = useGameStore((s) => s.currentNumber)
   const called = useGameStore((s) => s.called)
   const lastDrawnAt = useGameStore((s) => s.lastDrawnAt)
-  const drawSeq = useGameStore((s) => s.drawSeq)
   const draw = useGameStore((s) => s.draw)
   const undo = useGameStore((s) => s.undo)
 
   // Which pack is active. UI state only — switching themes mid-game changes
   // the phrases, not the draw order, so it's deliberately not in the game store.
   const [themeId, setThemeId] = useState(themes[0].id)
+
+  // Which full-screen host panel is open, if any. Both cover the game screen
+  // rather than sitting beside it — the host is doing one thing at a time.
+  const [panel, setPanel] = useState<'tickets' | 'verify' | null>(null)
+  // Mounting the print sheet opens the browser's print dialog; unmounting it on
+  // 'afterprint' puts the host back where they were.
+  const [printing, setPrinting] = useState(false)
+  const tickets = useTicketSetStore((s) => s.tickets)
   // The registry validated every pack at load, so this lookup can't miss as
   // long as themeId came from the picker.
   const theme = themes.find((t) => t.id === themeId) ?? themes[0]
 
-  if (showAnimPreview) return <AnimPreview />
+  // The stage. Uses the URL's theme (or the first pack) rather than the picker
+  // state — a cast tab is its own page load, there is no picker on screen.
+  if (showDisplay) {
+    const displayTheme = themes.find((t) => t.id === urlThemeId) ?? themes[0]
+    return <DisplayMode theme={displayTheme} />
+  }
 
   const call = currentNumber !== null ? theme.calls[String(currentNumber)] : null
   const phrase = call?.phrase ?? null
@@ -37,10 +57,27 @@ function App() {
   const gameOver = called.size >= 90
 
   return (
-    <div className="flex h-dvh flex-col bg-neutral-950 text-white">
+    <>
+    <div className="flex h-dvh flex-col bg-neutral-950 text-white print:hidden">
       <header className="flex items-center justify-between gap-2 px-3 py-1">
         <ThemePicker themes={themes} currentId={themeId} onChange={setThemeId} />
-        <UndoButton onUndo={undo} disabled={!canUndo} />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setPanel('tickets')}
+            className="rounded-lg bg-neutral-800 px-3 py-1.5 text-sm font-semibold"
+          >
+            Tickets
+          </button>
+          <button
+            type="button"
+            onClick={() => setPanel('verify')}
+            className="rounded-lg bg-neutral-800 px-3 py-1.5 text-sm font-semibold"
+          >
+            Check
+          </button>
+          <UndoButton onUndo={undo} disabled={!canUndo} />
+        </div>
       </header>
 
       {/* min-h-0 lets this flex child actually shrink below its content size
@@ -60,14 +97,21 @@ function App() {
         <DrawButton onDraw={draw} disabled={gameOver} />
       </footer>
 
-      {/* One reaction per draw. The theme owns the indirection: call.anim is a
-          theme-local name, animations[] maps it to an app component key. */}
-      <ReactionLayer
-        animKey={call ? theme.animations[call.anim] : null}
-        intensity={call?.intensity ?? 1}
-        playKey={drawSeq}
-      />
+      {panel === 'tickets' && (
+        <TicketsPanel
+          onClose={() => setPanel(null)}
+          onPrint={() => setPrinting(true)}
+        />
+      )}
+      {panel === 'verify' && <VerifierPanel onClose={() => setPanel(null)} />}
     </div>
+
+    {/* Outside the print:hidden wrapper on purpose — on paper, the print sheet is
+        the ONLY thing that should exist. */}
+    {printing && (
+      <PrintSheet tickets={tickets} onDone={() => setPrinting(false)} />
+    )}
+    </>
   )
 }
 

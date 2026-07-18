@@ -1,1 +1,21 @@
 @import 'tailwindcss';
+
+/* The print stylesheet. Only the ticket sheet ever reaches paper: everything on the
+   host screen is marked print:hidden, and PrintSheet is hidden print:block.
+
+   A4 with an 8mm margin leaves ~194mm of usable width, which is what puts nine
+   columns at ~21mm each — wide enough to strike with a pen. */
+@page {
+  size: A4;
+  margin: 8mm;
+}
+
+@media print {
+  /* The app is a dark screen; paper is white. Forcing it here means the ticket
+     components don't each have to think about it. */
+  html,
+  body {
+    background: #fff;
+    color: #000;
+  }
+}

@@ -1,0 +1,12 @@
+{
+  /* Same settings as the app, plus Node types — tests run in Node (vitest), and the
+     airgap test reads the source tree off disk to prove /t can't reach the caller. */
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.test.tsbuildinfo",
+    "types": ["vite/client", "node"],
+    "noEmit": true
+  },
+  "include": ["src/**/*.test.ts", "src/**/*.test.tsx"],
+  "exclude": []
+}

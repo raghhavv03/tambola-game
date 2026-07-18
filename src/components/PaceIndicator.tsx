@@ -12,14 +12,22 @@ interface PaceIndicatorProps {
 const NUDGE_DELAY_MS = 10_000
 
 export function PaceIndicator({ lastDrawnAt }: PaceIndicatorProps) {
-  const [visible, setVisible] = useState(false)
+  // WHICH draw the nudge has fired for, not whether it's showing. Storing the
+  // timestamp instead of a boolean is what removes the reset: a new draw changes
+  // lastDrawnAt, so the two stop matching and the nudge hides on that same render.
+  // A boolean would have to be set back to false from inside the effect, which
+  // costs an extra render pass every single draw.
+  const [nudgedFor, setNudgedFor] = useState<number | null>(null)
 
   useEffect(() => {
-    setVisible(false)
     if (lastDrawnAt === null) return
-    const timer = setTimeout(() => setVisible(true), NUDGE_DELAY_MS)
+    const timer = setTimeout(() => setNudgedFor(lastDrawnAt), NUDGE_DELAY_MS)
     return () => clearTimeout(timer)
   }, [lastDrawnAt])
+
+  // Derived, never stored: visible only while the fired nudge belongs to the draw
+  // currently on screen. Null lastDrawnAt (nothing drawn yet) can never match.
+  const visible = lastDrawnAt !== null && nudgedFor === lastDrawnAt
 
   return (
     <p

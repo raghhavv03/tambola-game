@@ -76,14 +76,128 @@ This file is state, not rules — update it at the end of each phase.
   reviewed by drawing random numbers
 - THEME_PACK_GUIDE.md §7 updated: animations values documented as registry keys
 
+**Phase 5 — delivery, paper, verification**
+- `src/engine/ticketId.ts` — a ticket ID is the RECIPE for the ticket, not a lookup
+  key: `"<setSeed in Crockford base32>-<index>"`, e.g. `K3P9Z-04`. `ticketFromId()`
+  rebuilds that exact grid anywhere, with nothing transmitted. Alphabet omits
+  I/L/O/U and decoding folds look-alikes (O→0, I/L→1) — base36 let a mistyped ID
+  silently resolve to a *different* valid ticket, which is how a host verifies the
+  wrong claim. Prefix stability of `generateSet` is what lets the verifier rebuild
+  ticket N without knowing the set size (tested)
+- `src/ticketLink.ts` — the one place that knows the URL shape:
+  `<origin>/t#<ticketId>`. ID lives in the FRAGMENT so it never reaches a server log
+  or a Referer header
+- **QR delivery (primary path)** — `src/components/QrCode.tsx` (inline SVG via
+  `qrcode-generator`, MIT, zero deps, offline) + `TicketsPanel.tsx`: one QR per
+  ticket, batch size control, new-batch, tap-ID-to-copy-link, and a warning when
+  the host is serving on `localhost` (a phone can't open that)
+- **`/t` player route** — `src/player/`: `PlayerApp.tsx`, `TicketCell.tsx`,
+  `marks.ts`. Tap to mark (spring fill + vibrate), long-press 450ms to unmark,
+  drift >12px cancels the tap so scrolling never marks. Marks persist to
+  localStorage per ticket ID so a reload doesn't wipe them. `hashchange` re-opens
+  the ticket — scanning a second QR in an open tab used to show the old ticket
+- **Print path** — `PrintSheet.tsx` + `@page` rules in `index.css`: A4, 6 per page,
+  11mm rows (~21mm columns), ticket ID on every ticket. Mounting the component IS
+  the print action; it unmounts on `afterprint`. Offered next to the QR codes, not
+  pushed
+- **Claim verifier (host only)** — `VerifierPanel.tsx`: type an ID, ticket is
+  rebuilt live as you type, called numbers light up on it, all 6 dividends show
+  VALID/BOGEY with the missing numbers listed. One tap records the ruling
+- **Bogey counter** — `src/store/claimStore.ts`: counts INVALID rulings per ticket
+  ID, shown in the verifier and on the ticket's QR card. It compares CALLED numbers
+  against the ticket's true 15 — it never sees what the player marked
+- `src/main.tsx` split into two dynamic-import entry points (host / player) so the
+  two screens are separate bundles with separate module graphs
+- `src/player/airgap.test.ts` — walks the player route's real import graph on disk:
+  asserts an exact allowlist of 7 reachable modules, no store/caller/host component,
+  no fetch/WebSocket/EventSource/BroadcastChannel/postMessage/serviceWorker anywhere
+  in the graph, and no called-numbers vocabulary. Plus the reverse: nothing reachable
+  from the host entry may touch the `tambola:marks:` key
+- 46 tests passing, `npm run build` clean. Verified in-browser at 375x812: QR grid,
+  scan → ticket, mark/unmark/scroll guards, reload persistence, print layout
+  (2 pages for 8 tickets, 6+2), and host verifier agreeing with `/t` on the same ID
+- `PaceIndicator.tsx` lint fix: `react-hooks/set-state-in-effect` was firing because
+  the effect eagerly called `setVisible(false)` on every `lastDrawnAt` change (an
+  extra render every draw). Replaced the boolean with `nudgedFor: number | null` —
+  the timestamp the delayed nudge fired for — and derived `visible` as
+  `lastDrawnAt !== null && nudgedFor === lastDrawnAt`. No reset needed: a new draw
+  changes `lastDrawnAt`, the two stop matching, nudge hides on that same render.
+  `npm run lint` is zero-error again. Behavior unchanged (verified in-browser):
+  hidden before any draw, hidden right after a draw, visible at 10s idle, hides
+  again on the next draw, stays hidden after undoing back to an empty board
+
+**Phase 6 — room display (`/?display=1`)**
+- `src/components/DisplayMode.tsx` — the stage: same app, same store, same tab;
+  host casts/AirPlays the tab or plugs in HDMI. No remote channel (V1 decision).
+  Optional `&theme=<id>` picks the pack (a cast tab is its own page load, no
+  picker chrome on stage)
+- Layout: giant number (`min(52vh, 36vw)`, font-black, pure white on
+  neutral-950 ≈ 19:1, nothing ever layered behind it), theme-accent phrase in a
+  reserved two-line block (no reflow between 1- and 2-line phrases), last-3
+  calls with opacity-encoded order (fixed 3 slots, placeholders before there's
+  history), full 1–90 board with the freshest call white-ringed (static ring,
+  not a pulse — must survive a 30-second-late glance), quiet header
+  (theme name + n/90). Reaction layer reused at full intensity
+- Entrances: number = physics-only spring (~380ms, no overshoot), phrase
+  follows at +140ms. `useReducedMotion` skips both. Legibility floor
+  (4m / 79-year-old / lit room) was the constraint every choice deferred to
+- Controls on the stage itself (same tab = host holds the device): tap/click
+  or Space/Enter = draw; undo is keyboard-only (U/Backspace) so a stray second
+  tap can't un-call a number in front of the room
+- Theme schema: optional `accent` ("#rrggbb") — types.ts, loader validation
+  (malformed accent dies at load; a bad value would otherwise silently render
+  the DEFAULT color, the exact fallback §7 forbids), guide §7 documented,
+  mythology.json got saffron `#FF9933`, plain.json omits it (proves optional).
+  2 new loader tests; 48 total passing, build + lint clean
+- Verified in-browser at 1280x720: empty state, mid-game (37/90), plain-theme
+  default accent (#fbbf24), keyboard draw/undo, game-over state (90/90 +
+  "All ninety numbers called.")
+
+**Phase 7 — reaction layer removed, display themed by data**
+- Reaction animations deleted wholesale (`src/anim/` — all 16 SVG components,
+  `registry.ts`, `shared.ts` — plus `ReactionLayer.tsx`, `AnimPreview.tsx` and
+  the `/?anim` harness). They didn't earn their place. Schema followed: `anim`/
+  `animations`/`intensity` gone from types and loader validation, stripped from
+  both shipped packs. The loader IGNORES stray legacy anim fields (tested), so
+  an old pack still loads. Milestones are now phrase-only
+- `display` token block added to the theme schema (same pattern as `accent`):
+  the room display's entire visual identity as data — `background`, `number`,
+  `phrase`, `boardCalled(Text)`, `boardUncalled(Text)` required; `backdrop`
+  (edge wash), `halo` (glow outside the number's strokes), `panel`, `ring`,
+  `chrome` optional. Unknown tokens rejected (a typo'd token would silently
+  fall back — §7 forbids that)
+- **Contrast floors enforced at load** (`contrastRatio()` + `CONTRAST_FLOORS`
+  in loader.ts, WCAG relative luminance): number/background 7:1,
+  phrase/background 4.5:1, called-cell pair 4.5:1, uncalled-cell pair 3:1.
+  A palette that would be unreadable from the back of the room fails at load
+  with the actual ratio in the message — never a silent fallback
+- `DisplayMode.tsx` rewritten token-driven: every color is a CSS variable
+  resolved from `theme.display` with app defaults per token. No per-theme
+  branches — grep it for `theme.id`, there are none. The renderer enforces the
+  one structural rule itself: the number sits on flat `background` (the
+  `backdrop` radial only darkens edges, center 55% stays pure; `halo` is
+  text-shadow, outside the glyph strokes)
+- mythology.json got the bold look: deep ember stage (#1C0F06) receding to
+  near-black edges, warm ivory number (#FFF5E6, ~15:1) with saffron halo,
+  saffron phrase/board. plain.json has NO display block and renders the
+  default stage — the Task-5-style proof that the block is optional and a new
+  look is JSON-only, zero component edits
+- Guide §7 + QA checklist rewritten (display tokens documented with floors,
+  anim schema removed). 52 tests passing (display validation, contrast math,
+  legacy-anim tolerance), build + lint clean. Verified in-browser: mythology
+  stage, plain default stage, host screen, draw keys still exact (1 key = 1
+  draw)
+
 ## Not started
 
-- No `/t` player ticket route (THE AIRGAP requires this stay fetch/socket-free)
-- No room/called-numbers board screen (separate from the host's own view)
-- No claim-verification UI (engine function exists, no host-facing trigger)
-- No persistence of a game (seed/history) beyond in-memory state
-- No milestone reactions — `milestones` phrases/anims exist in packs and are
-  validated, but nothing triggers them (needs the claim-verification UI first)
+- No persistence of a game (seed/history) beyond in-memory state — a host refresh
+  loses the draw order and every bogey tally
+- Milestone phrases exist in packs but nothing shows them (the verifier is the
+  natural trigger — on a VALID ruling, show the dividend's phrase)
+- Display mode has no channel to the host's phone — drawing happens on the device
+  the display runs on. A remote is a future decision, not an oversight; it must
+  never route through `/t` or anything a player loads
+- `generateSet` still doesn't do the traditional book-of-6 partition of 1–90
 
 ## Known decisions worth knowing before continuing
 
@@ -94,6 +208,20 @@ This file is state, not rules — update it at the end of each phase.
   PRNG copy.
 - Tests use fixed seeds for reproducibility; if a test fails, the seed in the
   failure message is the reproduction case — don't just re-run and hope.
+- **Deploying:** `/t` is a client route with no file behind it. Any static host must
+  rewrite unknown paths to `index.html` (Netlify `_redirects`, Vercel rewrites, Caddy
+  `try_files`) or scanned QRs 404. `vite dev` already does this.
+- **Handing out QRs:** the codes encode `window.location.origin`, so the host must be
+  serving on a LAN address (`npm run dev -- --host`) — phones can't open `localhost`.
+  The Tickets panel says so when it detects it.
+- Ticket IDs are Crockford base32, not base36, and it is not cosmetic — see the
+  ticketId.ts header. Don't "simplify" it back to `toString(36)`.
+- `src/main.tsx`'s two dynamic imports are a safety property, not a style choice.
+  Merging the host and player into one component tree re-joins their module graphs
+  and `airgap.test.ts` will fail — correctly.
+- The player's marks in localStorage are the one same-origin surface both screens
+  could theoretically share. The airgap test forbids the host side from naming that
+  key prefix; keep it that way.
 - New theme pack = drop a JSON file in `themes/`, nothing else. If a task ever
   seems to need touching a component to add a theme, the schema/loader is
   wrong — fix `src/themes/`, not the component. `note`/`mech` are build-time
@@ -101,7 +229,8 @@ This file is state, not rules — update it at the end of each phase.
 
 ## Suggested next-session prompt
 
-> Read CLAUDE.md and PROGRESS.md first. Next: [describe the next phase — e.g. "build
-> the /t player ticket route: renders one ticket from a seed in the URL, THE AIRGAP
-> applies — no fetch/socket/shared store with the host screen" or "add claim
-> verification UI on the host screen using the existing verifyClaim() engine fn"].
+> Read CLAUDE.md and PROGRESS.md first. Next: [describe the next phase — e.g. "the
+> room board screen: a big shared display of called numbers, separate from the host's
+> phone" or "persist the game (seed + history + bogey tallies) so a host refresh
+> doesn't lose the session" or "wire milestone reactions to a VALID ruling in the
+> verifier"]. THE AIRGAP still applies — `/t` gains nothing.
