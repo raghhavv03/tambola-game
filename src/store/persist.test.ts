@@ -64,6 +64,11 @@ describe('bogey persistence', () => {
     expect(loadBogeys()).toEqual({})
   })
 
+  it('loadBogeys returns {} when the shape is wrong', () => {
+    store.setItem('tambola:host:bogeys', JSON.stringify([1, 2, 3]))
+    expect(loadBogeys()).toEqual({})
+  })
+
   it('clearBogeys removes the saved tally', () => {
     saveBogeys({ X: 1 })
     clearBogeys()

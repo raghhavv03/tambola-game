@@ -69,7 +69,14 @@ export function saveBogeys(bogeys: Record<string, number>): boolean {
 }
 
 export function loadBogeys(): Record<string, number> {
-  return readJSON<Record<string, number>>(BOGEYS_KEY) ?? {}
+  const parsed = readJSON<Record<string, number>>(BOGEYS_KEY)
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return {}
+  }
+  if (!Object.values(parsed).every((v) => typeof v === 'number')) {
+    return {} // shape doesn't match what we ever wrote — treat as absent
+  }
+  return parsed
 }
 
 export function clearBogeys(): void {
