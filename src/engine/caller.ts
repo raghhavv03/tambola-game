@@ -23,6 +23,10 @@ export interface Caller {
   readonly remaining: number[]
   /** The drawn numbers as a Set — handy for "has this been called?" checks. */
   readonly called: Set<number>
+  /** The seed this caller's shuffle order was built from — the value actually
+   *  used, whether passed in or generated. Needed to persist and later
+   *  reconstruct the exact same draw order (see replayCaller below). */
+  readonly seed: number
 }
 
 // --- The shuffle ---------------------------------------------------------------
@@ -84,6 +88,8 @@ export function createCaller(seed?: number): Caller {
       drawn = 0 // same `order`, back to the start — a full pool again
     },
 
+    seed: actualSeed,
+
     // Getters (not stored arrays) so each read reflects the current `drawn` pointer.
     // We return copies/new Sets so outside code can't reach in and corrupt state.
     get history() {
@@ -96,4 +102,30 @@ export function createCaller(seed?: number): Caller {
       return new Set(order.slice(0, drawn))
     },
   }
+}
+
+/**
+ * Rebuild a caller from a persisted seed + history, and verify the replay
+ * actually reproduces that history before anything trusts it.
+ *
+ * Persisted state is never applied directly (no `new Set(savedHistory)`) — it
+ * is REPLAYED through draw(), the same path a live game uses, so the
+ * reconstructed caller's internal `drawn` pointer ends up exactly where undo()
+ * expects it. The deep-equal check catches the one thing that would make
+ * blind replay unsafe: a persisted history that this build's shuffle no
+ * longer reproduces from that seed (e.g. rng.ts changed).
+ *
+ * @returns the reconstructed Caller if the replay matches, or null if it
+ *          diverged — treat null like corrupt data, never resume from it.
+ */
+export function replayCaller(seed: number, history: number[]): Caller | null {
+  const caller = createCaller(seed)
+  for (let i = 0; i < history.length; i++) caller.draw()
+
+  const replayed = caller.history
+  const matches =
+    replayed.length === history.length &&
+    replayed.every((n, i) => n === history[i])
+
+  return matches ? caller : null
 }

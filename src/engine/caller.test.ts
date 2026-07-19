@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { createCaller } from './caller'
+import { createCaller, replayCaller } from './caller'
 
 // A fixed seed everywhere so every run is identical and failures are reproducible.
 const SEED = 42
@@ -79,5 +79,52 @@ describe('createCaller', () => {
     // the identical sequence after this one is reset.
     const fresh = createCaller(SEED)
     expect(caller.draw()).toBe(fresh.draw())
+  })
+})
+
+describe('caller.seed', () => {
+  it('exposes the seed a caller was built from', () => {
+    const caller = createCaller(123)
+    expect(caller.seed).toBe(123)
+  })
+
+  it('exposes a generated seed when none is given', () => {
+    const caller = createCaller()
+    expect(typeof caller.seed).toBe('number')
+  })
+})
+
+describe('replayCaller', () => {
+  it('reconstructs the exact state after N draws', () => {
+    const N = 17
+    const reference = createCaller(SEED)
+    const history: number[] = []
+    for (let i = 0; i < N; i++) history.push(reference.draw() as number)
+
+    const replayed = replayCaller(SEED, history)
+    expect(replayed).not.toBeNull()
+    expect(replayed!.history).toEqual(reference.history)
+    expect(replayed!.remaining).toEqual(reference.remaining)
+    expect([...replayed!.called]).toEqual([...reference.called])
+  })
+
+  it('reconstructs correctly after an undo (shorter history)', () => {
+    const reference = createCaller(SEED)
+    for (let i = 0; i < 10; i++) reference.draw()
+    reference.undo() // net 9 draws
+
+    const replayed = replayCaller(SEED, reference.history)
+    expect(replayed).not.toBeNull()
+    expect(replayed!.history).toEqual(reference.history)
+    expect(replayed!.history.length).toBe(9)
+  })
+
+  it('returns null when the history does not match a replay from that seed', () => {
+    const tampered = [1, 2, 3, 4, 5]
+    const real = createCaller(SEED)
+    for (let i = 0; i < 5; i++) real.draw()
+    // Guard against a coincidental match breaking this test.
+    expect(tampered).not.toEqual(real.history)
+    expect(replayCaller(SEED, tampered)).toBeNull()
   })
 })
