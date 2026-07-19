@@ -1,8 +1,10 @@
 // localStorage persistence for HOST-ONLY game state — the caller's seed +
 // draw history, and the bogey tally. Keys use the `tambola:host:` prefix,
-// disjoint from the player's `tambola:marks:` prefix (src/player/marks.ts):
-// airgap.test.ts asserts no file reachable from the host entry point names
-// that OTHER prefix, and this module is never imported under src/player/.
+// disjoint from the player's mark-storage prefix (see the KEY_PREFIX constant
+// in src/player/marks.ts): airgap.test.ts asserts no file reachable from the
+// host entry point names that other prefix (written out literally, not just
+// referenced, so the check can't be satisfied by a comment) — and this
+// module is never imported under src/player/.
 //
 // Reads degrade silently to "nothing found" on any parse failure — same as
 // marks.ts's precedent, because a host whose storage is blocked should still
