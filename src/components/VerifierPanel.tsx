@@ -17,6 +17,7 @@ import { parseTicketId, ticketFromRef } from '../engine/ticketId'
 import { useGameStore } from '../store/gameStore'
 import { useClaimStore } from '../store/claimStore'
 import { TicketFace } from './TicketFace'
+import type { Theme } from '../themes/types'
 
 // The six standard dividends, in the order a game usually awards them.
 const DIVIDENDS: { key: Dividend; label: string }[] = [
@@ -30,9 +31,10 @@ const DIVIDENDS: { key: Dividend; label: string }[] = [
 
 interface VerifierPanelProps {
   onClose: () => void
+  theme: Theme
 }
 
-export function VerifierPanel({ onClose }: VerifierPanelProps) {
+export function VerifierPanel({ onClose, theme }: VerifierPanelProps) {
   const history = useGameStore((s) => s.history)
   const called = useGameStore((s) => s.called)
   const bogeys = useClaimStore((s) => s.bogeys)
@@ -41,6 +43,10 @@ export function VerifierPanel({ onClose }: VerifierPanelProps) {
   const [input, setInput] = useState('')
   // The dividend just ruled on, so the host gets a visible confirmation the tap landed.
   const [lastRuled, setLastRuled] = useState<Dividend | null>(null)
+  // The dividend's milestone phrase, shown only after a VALID ruling — reuses
+  // NumberDisplay's text-amber-200 phrase-text treatment rather than a new
+  // component or animation. Phase 4's reaction layer stays removed.
+  const [milestonePhrase, setMilestonePhrase] = useState<string | null>(null)
 
   // Parsed live as the host types — the verdict appears the moment the ID is complete,
   // with no "Check" button to press.
@@ -52,6 +58,7 @@ export function VerifierPanel({ onClose }: VerifierPanelProps) {
     if (ticketId === null) return
     record({ ticketId, dividend, valid, atCall: history.length })
     setLastRuled(dividend)
+    setMilestonePhrase(valid ? theme.milestones[dividend].phrase : null)
   }
 
   return (
@@ -74,6 +81,7 @@ export function VerifierPanel({ onClose }: VerifierPanelProps) {
           onChange={(e) => {
             setInput(e.target.value)
             setLastRuled(null)
+            setMilestonePhrase(null)
           }}
           placeholder="Ticket ID, e.g. K3P9Z-04"
           className="w-full rounded-xl bg-neutral-900 px-4 py-3 font-mono text-lg tracking-widest uppercase placeholder:normal-case placeholder:tracking-normal placeholder:text-neutral-600"
@@ -102,6 +110,12 @@ export function VerifierPanel({ onClose }: VerifierPanelProps) {
               </span>
             )}
           </div>
+
+          {milestonePhrase !== null && (
+            <p className="mb-3 text-center text-lg font-semibold text-amber-200 sm:text-xl">
+              {milestonePhrase}
+            </p>
+          )}
 
           {/* The ticket itself, with the numbers that have genuinely been called
               lit up. This is the host's cross-reference, on the host's screen —
