@@ -6,16 +6,18 @@ import { DrawButton } from './components/DrawButton'
 import { UndoButton } from './components/UndoButton'
 import { NumberGrid } from './components/NumberGrid'
 import { PaceIndicator } from './components/PaceIndicator'
-import { ThemePicker } from './components/ThemePicker'
 import { DisplayMode } from './components/DisplayMode'
 import { TicketsPanel } from './components/TicketsPanel'
 import { VerifierPanel } from './components/VerifierPanel'
+import { SettingsSheet } from './components/SettingsSheet'
 import { PrintSheet } from './components/PrintSheet'
 import { ResumeGamePrompt } from './components/ResumeGamePrompt'
 import { useTicketSetStore } from './store/ticketSetStore'
 import { themes } from './themes'
 import * as persist from './store/persist'
 import { resumeGame, startNewGame } from './store/gameSession'
+import { useDrawWithSound } from './useDrawWithSound'
+import { useWakeLock } from './useWakeLock'
 
 // Checked once at module load — it's a URL, it doesn't change mid-session.
 const urlParams = new URLSearchParams(window.location.search)
@@ -27,10 +29,12 @@ const showDisplay = urlParams.has('display')
 const urlThemeId = urlParams.get('theme')
 
 function App() {
+  // Keep the host's screen awake while the caller is on screen.
+  useWakeLock()
+
   const currentNumber = useGameStore((s) => s.currentNumber)
   const called = useGameStore((s) => s.called)
   const lastDrawnAt = useGameStore((s) => s.lastDrawnAt)
-  const draw = useGameStore((s) => s.draw)
   const undo = useGameStore((s) => s.undo)
   const gameSaveFailed = useGameStore((s) => s.saveFailed)
   const claimSaveFailed = useClaimStore((s) => s.saveFailed)
@@ -55,7 +59,7 @@ function App() {
 
   // Which full-screen host panel is open, if any. Both cover the game screen
   // rather than sitting beside it — the host is doing one thing at a time.
-  const [panel, setPanel] = useState<'tickets' | 'verify' | null>(null)
+  const [panel, setPanel] = useState<'tickets' | 'verify' | 'settings' | null>(null)
   // Mounting the print sheet opens the browser's print dialog; unmounting it on
   // 'afterprint' puts the host back where they were.
   const [printing, setPrinting] = useState(false)
@@ -63,6 +67,8 @@ function App() {
   // The registry validated every pack at load, so this lookup can't miss as
   // long as themeId came from the picker.
   const theme = themes.find((t) => t.id === themeId) ?? themes[0]
+  // Draw, then speak the drawn number's phrase when TTS is enabled.
+  const drawWithSound = useDrawWithSound(theme)
 
   if (pendingResume !== null) {
     return (
@@ -110,7 +116,14 @@ function App() {
         </div>
       )}
       <header className="flex items-center justify-between gap-2 px-3 py-1">
-        <ThemePicker themes={themes} currentId={themeId} onChange={setThemeId} />
+        <button
+          type="button"
+          onClick={() => setPanel('settings')}
+          aria-label="Settings"
+          className="rounded-lg bg-neutral-800 px-3 py-1.5 text-sm font-semibold"
+        >
+          ⚙
+        </button>
         <div className="flex items-center gap-2">
           {(gameSaveFailed || claimSaveFailed) && (
             <span className="text-xs font-semibold text-red-400">
@@ -164,7 +177,7 @@ function App() {
 
       <footer className="flex flex-col items-center gap-1 px-4 pt-1 pb-4">
         <PaceIndicator lastDrawnAt={lastDrawnAt} />
-        <DrawButton onDraw={draw} disabled={gameOver} />
+        <DrawButton onDraw={drawWithSound} disabled={gameOver} />
       </footer>
 
       {panel === 'tickets' && (
@@ -175,6 +188,14 @@ function App() {
       )}
       {panel === 'verify' && (
         <VerifierPanel onClose={() => setPanel(null)} theme={theme} />
+      )}
+      {panel === 'settings' && (
+        <SettingsSheet
+          themes={themes}
+          currentThemeId={themeId}
+          onChangeTheme={setThemeId}
+          onClose={() => setPanel(null)}
+        />
       )}
     </div>
 

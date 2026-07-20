@@ -28,5 +28,5 @@
      Keeping those types out of the app project means app code physically cannot
      reach for a Node API by accident. */
   "include": ["src"],
-  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/sw.ts"]
 }

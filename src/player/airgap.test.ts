@@ -170,4 +170,20 @@ describe('THE AIRGAP: the host cannot reach into the player', () => {
       expect(path.includes('/player/')).toBe(false)
     }
   })
+
+  it('ships a precache-only service worker that relays nothing between clients', () => {
+    // The real PWA airgap invariant is NOT "which file calls register()" — it's
+    // that the service worker (which controls BOTH the host tab and /t) can never
+    // forward a message from one client to another. If it could, that is a channel
+    // from the caller into the player's ticket. So the SW source must contain no
+    // client enumeration and no postMessage to a client.
+    const swPath = resolve(SRC, 'sw.ts')
+    const sw = readFileSync(swPath, 'utf8').replace(/\/\/.*|\/\*[\s\S]*?\*\//g, '') // strip comments
+    for (const relay of [/clients\s*\.\s*matchAll/, /clients\s*\.\s*get\b/, /\.postMessage\s*\(/]) {
+      expect(
+        relay.test(sw),
+        `src/sw.ts matches ${relay} — the service worker must not relay between clients`,
+      ).toBe(false)
+    }
+  })
 })

@@ -1,7 +1,15 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { registerSW } from 'virtual:pwa-register'
 import './index.css'
 import { PLAYER_ROUTE } from './ticketLink'
+
+// Register the precache service worker for both routes, so a scanned /t ticket
+// also works offline. It only serves cached static files — see src/sw.ts for the
+// airgap invariant it upholds (no message relay between clients). autoUpdate
+// refreshes the cache on a new deploy with no prompt. The helper is a no-op where
+// service workers are unavailable.
+registerSW({ immediate: true })
 
 // Two entry points, not one app with a route inside it.
 //

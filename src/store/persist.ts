@@ -88,3 +88,32 @@ export function clearBogeys(): void {
     // Nothing to do — see clearGame().
   }
 }
+
+const SETTINGS_KEY = 'tambola:host:settings'
+
+export interface PersistedSettings {
+  ttsEnabled: boolean
+  reducedMotion: boolean
+}
+
+// Speaking numbers aloud is opt-in (no surprise audio on first open); reduced
+// motion defaults to "follow the OS" (false = don't force it).
+const DEFAULT_SETTINGS: PersistedSettings = { ttsEnabled: false, reducedMotion: false }
+
+export function saveSettings(settings: PersistedSettings): boolean {
+  return writeJSON(SETTINGS_KEY, settings)
+}
+
+export function loadSettings(): PersistedSettings {
+  const parsed = readJSON<Partial<PersistedSettings>>(SETTINGS_KEY)
+  if (parsed === null || typeof parsed !== 'object') return { ...DEFAULT_SETTINGS }
+  // Validate each field independently so one corrupt flag can't discard the other.
+  return {
+    ttsEnabled:
+      typeof parsed.ttsEnabled === 'boolean' ? parsed.ttsEnabled : DEFAULT_SETTINGS.ttsEnabled,
+    reducedMotion:
+      typeof parsed.reducedMotion === 'boolean'
+        ? parsed.reducedMotion
+        : DEFAULT_SETTINGS.reducedMotion,
+  }
+}

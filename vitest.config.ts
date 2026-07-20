@@ -6,5 +6,8 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     environment: 'node',
+    // Don't discover tests inside git worktrees under .claude/ — those are
+    // stale snapshots of this repo and would run every suite a second time.
+    exclude: ['**/node_modules/**', '**/dist/**', '**/.claude/**'],
   },
 })

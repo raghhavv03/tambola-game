@@ -7,6 +7,8 @@ import {
   saveBogeys,
   loadBogeys,
   clearBogeys,
+  saveSettings,
+  loadSettings,
 } from './persist'
 
 let store: MockLocalStorage
@@ -73,5 +75,29 @@ describe('bogey persistence', () => {
     saveBogeys({ X: 1 })
     clearBogeys()
     expect(loadBogeys()).toEqual({})
+  })
+})
+
+describe('settings persistence', () => {
+  it('round-trips both flags', () => {
+    expect(saveSettings({ ttsEnabled: true, reducedMotion: true })).toBe(true)
+    expect(loadSettings()).toEqual({ ttsEnabled: true, reducedMotion: true })
+  })
+
+  it('returns defaults (both false) when nothing was saved', () => {
+    expect(loadSettings()).toEqual({ ttsEnabled: false, reducedMotion: false })
+  })
+
+  it('returns defaults on malformed JSON', () => {
+    store.setItem('tambola:host:settings', '{not json')
+    expect(loadSettings()).toEqual({ ttsEnabled: false, reducedMotion: false })
+  })
+
+  it('degrades a bad field to its default, keeping the good one', () => {
+    store.setItem(
+      'tambola:host:settings',
+      JSON.stringify({ ttsEnabled: true, reducedMotion: 'yes' }),
+    )
+    expect(loadSettings()).toEqual({ ttsEnabled: true, reducedMotion: false })
   })
 })

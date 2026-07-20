@@ -23,8 +23,11 @@
 // the room.
 
 import { useEffect, useMemo } from 'react'
-import { motion, useReducedMotion } from 'motion/react'
+import { motion } from 'motion/react'
 import { useGameStore } from '../store/gameStore'
+import { useDrawWithSound } from '../useDrawWithSound'
+import { useWakeLock } from '../useWakeLock'
+import { useReducedMotionSetting } from '../useReducedMotionSetting'
 import type { Theme, ThemeDisplay } from '../themes/types'
 
 /** App-default accent (amber-400) for packs that don't declare one. */
@@ -153,14 +156,18 @@ function RecentCalls({ history }: { history: number[] }) {
 }
 
 export function DisplayMode({ theme }: DisplayModeProps) {
+  // Keep the projector/cast device awake for the whole game.
+  useWakeLock()
+
   const currentNumber = useGameStore((s) => s.currentNumber)
   const history = useGameStore((s) => s.history)
   const called = useGameStore((s) => s.called)
   const drawSeq = useGameStore((s) => s.drawSeq)
-  const draw = useGameStore((s) => s.draw)
   const undo = useGameStore((s) => s.undo)
+  // Draw, then speak the drawn phrase when TTS is on.
+  const drawWithSound = useDrawWithSound(theme)
 
-  const reducedMotion = useReducedMotion()
+  const reducedMotion = useReducedMotionSetting()
 
   const call = currentNumber !== null ? theme.calls[String(currentNumber)] : null
   const gameOver = called.size >= 90
@@ -173,14 +180,14 @@ export function DisplayMode({ theme }: DisplayModeProps) {
     function onKey(event: KeyboardEvent) {
       if (event.key === ' ' || event.key === 'Enter') {
         event.preventDefault() // Space must not scroll the stage
-        draw()
+        drawWithSound()
       } else if (event.key === 'Backspace' || event.key.toLowerCase() === 'u') {
         undo()
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [draw, undo])
+  }, [drawWithSound, undo])
 
   // The entrance choreography for a draw: the number lands first with a firm
   // spring (no bounce past its final size — overshoot at this scale looks
@@ -229,7 +236,7 @@ export function DisplayMode({ theme }: DisplayModeProps) {
           'radial-gradient(ellipse 120% 95% at 50% 42%, var(--stage-bg) 55%, var(--stage-backdrop) 100%)',
       }}
       onClick={() => {
-        if (!gameOver) draw()
+        if (!gameOver) drawWithSound()
       }}
     >
       {/* Quiet chrome: who's calling and how far in. Small on purpose — it's
