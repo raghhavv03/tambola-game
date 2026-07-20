@@ -1,14 +1,16 @@
 // The host's settings: theme, spoken numbers (TTS), reduce motion. A full-screen
 // panel like Tickets / Check — the host does one thing at a time. Host-only.
+//
+// Reads/writes settingsStore directly (theme included) — the sheet is the
+// settings UI, so it owns its wiring rather than threading props through App.
 
-import type { Theme } from '../themes/types'
+import { themes } from '../themes'
 import { ThemePicker } from './ThemePicker'
 import { useSettingsStore } from '../store/settingsStore'
 
 interface SettingsSheetProps {
-  themes: Theme[]
+  /** The resolved active theme id (settingsStore's raw id may be stale). */
   currentThemeId: string
-  onChangeTheme: (id: string) => void
   onClose: () => void
 }
 
@@ -40,21 +42,17 @@ function Toggle({
   )
 }
 
-export function SettingsSheet({
-  themes,
-  currentThemeId,
-  onChangeTheme,
-  onClose,
-}: SettingsSheetProps) {
+export function SettingsSheet({ currentThemeId, onClose }: SettingsSheetProps) {
   const ttsEnabled = useSettingsStore((s) => s.ttsEnabled)
   const reducedMotion = useSettingsStore((s) => s.reducedMotion)
   const setTtsEnabled = useSettingsStore((s) => s.setTtsEnabled)
   const setReducedMotion = useSettingsStore((s) => s.setReducedMotion)
+  const setThemeId = useSettingsStore((s) => s.setThemeId)
 
   return (
     <div className="fixed inset-0 z-20 flex flex-col bg-neutral-950 text-white">
       <header className="flex items-center justify-between px-4 py-3">
-        <h2 className="text-lg font-bold">Settings</h2>
+        <h2 className="font-display text-xl font-bold">Settings</h2>
         <button
           type="button"
           onClick={onClose}
@@ -67,7 +65,11 @@ export function SettingsSheet({
       <div className="flex flex-col gap-2 px-4">
         <div className="py-3">
           <div className="mb-2 text-sm font-semibold text-white">Theme</div>
-          <ThemePicker themes={themes} currentId={currentThemeId} onChange={onChangeTheme} />
+          <ThemePicker
+            themes={themes}
+            currentId={currentThemeId}
+            onChange={setThemeId}
+          />
         </div>
 
         <div className="h-px bg-white/10" />

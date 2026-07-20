@@ -79,25 +79,44 @@ describe('bogey persistence', () => {
 })
 
 describe('settings persistence', () => {
-  it('round-trips both flags', () => {
-    expect(saveSettings({ ttsEnabled: true, reducedMotion: true })).toBe(true)
-    expect(loadSettings()).toEqual({ ttsEnabled: true, reducedMotion: true })
+  it('round-trips all fields', () => {
+    expect(
+      saveSettings({ ttsEnabled: true, reducedMotion: true, themeId: 'plain' }),
+    ).toBe(true)
+    expect(loadSettings()).toEqual({
+      ttsEnabled: true,
+      reducedMotion: true,
+      themeId: 'plain',
+    })
   })
 
-  it('returns defaults (both false) when nothing was saved', () => {
-    expect(loadSettings()).toEqual({ ttsEnabled: false, reducedMotion: false })
+  it('returns defaults when nothing was saved', () => {
+    expect(loadSettings()).toEqual({
+      ttsEnabled: false,
+      reducedMotion: false,
+      themeId: null,
+    })
   })
 
   it('returns defaults on malformed JSON', () => {
     store.setItem('tambola:host:settings', '{not json')
-    expect(loadSettings()).toEqual({ ttsEnabled: false, reducedMotion: false })
+    expect(loadSettings()).toEqual({
+      ttsEnabled: false,
+      reducedMotion: false,
+      themeId: null,
+    })
   })
 
-  it('degrades a bad field to its default, keeping the good one', () => {
+  it('degrades a bad field to its default, keeping the good ones', () => {
+    // themeId absent (a pre-themeId save) also falls back to its default.
     store.setItem(
       'tambola:host:settings',
       JSON.stringify({ ttsEnabled: true, reducedMotion: 'yes' }),
     )
-    expect(loadSettings()).toEqual({ ttsEnabled: true, reducedMotion: false })
+    expect(loadSettings()).toEqual({
+      ttsEnabled: true,
+      reducedMotion: false,
+      themeId: null,
+    })
   })
 })

@@ -70,7 +70,7 @@ pointers). Case study dropped by decision — not doing one.
 These close out V1: the app should feel complete to use, not just be feature-complete.
 Keep them SIMPLE — structure and flow first, deep UI polish comes after (user does UI).
 
-### Task 11 · Apply the active theme across the whole app — Opus 4.8
+### Task 11 · Apply the active theme across the whole app — DONE
 Right now a theme's **visual identity** (`display` token block: colors/accent) only paints
 the room display (`?display=1`). The host screen (`/`) is hardcoded neutral + amber and a
 theme only swaps its *phrases*. Make the selected theme (e.g. Puranic) paint the **host
@@ -81,7 +81,7 @@ the existing token block and contrast floors. Theme-agnostic renderer stays them
 plain.json still renders the default look, and adding a future pack needs zero component
 edits.
 
-### Task 12 · Home screen + navigation — Opus 4.8
+### Task 12 · Home screen + navigation — DONE
 Add a home/landing screen (route `/` before the caller) so the app has a front door
 instead of dropping straight into the board. It should offer: **New Game** / **Resume**
 (reuse the existing resume gate), **theme pick**, **Play** (enter the caller), plus clear
@@ -90,18 +90,10 @@ in Settings (already there). Keep it plain — layout and flow, not decoration. 
 screen stays reachable and unchanged. DONE-WHEN: a first-time host lands on home, picks a
 theme, and starts a game without hunting for controls.
 
-### Task 13 · Flow/UX gaps — small, high-value, batch — Sonnet 5
-A grab-bag of the missing connective tissue. Keep each tiny:
-- **Open the room display from the host** — a button/QR that opens/links `?display=1`
-  (+ `&theme=<id>`), so the host doesn't hand-type the URL to cast.
-- **Persist the selected theme** — theme choice is `useState` today and resets on reload;
-  store it (settingsStore) so it survives a refresh, like the other prefs.
-- **Game-over screen** — right now 90/90 just shows a line; give a small "game complete"
-  state with New Game.
-- **First-run hint** — one-line "you draw, players mark their own tickets" so a new host
-  isn't confused by the no-auto-mark design.
-DONE-WHEN: host can cast the display in one tap, theme sticks across reloads, and a
-finished game has a clear end + restart.
+### Task 13 · Flow/UX gaps — DONE
+All four items landed (persist-theme + first-run hint in Task 12; cast button on the
+caller header + GameOverCard in the UI pass). Host casts in one tap, theme sticks
+across reloads, finished game has a clear end + New Game.
 
 ---
 

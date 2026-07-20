@@ -3,6 +3,12 @@
 // about to resume before it happens, not inherit last week's game by
 // accident. Same full-screen overlay pattern as VerifierPanel, but on top of
 // it (z-70) since this gate runs before any other panel could be open.
+//
+// On the normal host path the HOME screen is this gate now (its Resume /
+// Start-new buttons); this component still guards `?display=1` page loads,
+// which skip home and go straight to the stage.
+
+import { formatRelativeTime } from '../relativeTime'
 
 interface ResumeGamePromptProps {
   drawCount: number
@@ -45,16 +51,4 @@ export function ResumeGamePrompt({
       </div>
     </div>
   )
-}
-
-/** Coarse, human relative time — this only needs to answer "is this stale?", not be precise. */
-function formatRelativeTime(timestampMs: number): string {
-  const diffMs = Date.now() - timestampMs
-  const minutes = Math.floor(diffMs / 60_000)
-  if (minutes < 1) return 'just now'
-  if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`
-  const days = Math.floor(hours / 24)
-  return `${days} day${days === 1 ? '' : 's'} ago`
 }

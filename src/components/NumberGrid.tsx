@@ -3,6 +3,9 @@
 // a player's own ticket, so highlighting called numbers here is fine. See
 // CLAUDE.md's "THE AIRGAP" note: this is different from /t, which must never
 // show which numbers have been called.
+//
+// Cell colors are the same board tokens the room display uses (set on the
+// host screen's root) — the loader already contrast-validated both pairings.
 
 interface NumberGridProps {
   called: Set<number>
@@ -21,8 +24,8 @@ export function NumberGrid({ called }: NumberGridProps) {
             className={
               'flex aspect-square items-center justify-center rounded text-[10px] font-semibold sm:text-xs ' +
               (isCalled
-                ? 'bg-amber-500 text-black'
-                : 'bg-white/5 text-white/30')
+                ? 'bg-(--board-called) text-(--board-called-text)'
+                : 'bg-(--board-uncalled) text-(--board-uncalled-text)')
             }
           >
             {n}

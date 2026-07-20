@@ -14,6 +14,11 @@ describe('settingsStore', () => {
     expect(useSettingsStore.getState().ttsEnabled).toBe(true)
     expect(loadSettings().ttsEnabled).toBe(true)
     useSettingsStore.getState().setReducedMotion(true)
-    expect(loadSettings()).toEqual({ ttsEnabled: true, reducedMotion: true })
+    useSettingsStore.getState().setThemeId('mythology')
+    expect(loadSettings()).toEqual({
+      ttsEnabled: true,
+      reducedMotion: true,
+      themeId: 'mythology',
+    })
   })
 })

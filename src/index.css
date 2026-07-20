@@ -1,4 +1,13 @@
+/* Self-hosted display font (variable weight+optical size). Bundled by Vite and
+   precached by the PWA — no CDN request, so typography works offline too. */
+@import '@fontsource-variable/fraunces/index.css';
 @import 'tailwindcss';
+
+@theme {
+  /* `font-display` utility — the warm soft-serif voice used for headings and
+     the big called number. Body text stays on the system sans stack. */
+  --font-display: 'Fraunces Variable', ui-serif, Georgia, serif;
+}
 
 /* The print stylesheet. Only the ticket sheet ever reaches paper: everything on the
    host screen is marked print:hidden, and PrintSheet is hidden print:block.

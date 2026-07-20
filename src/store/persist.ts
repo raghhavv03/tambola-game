@@ -94,11 +94,19 @@ const SETTINGS_KEY = 'tambola:host:settings'
 export interface PersistedSettings {
   ttsEnabled: boolean
   reducedMotion: boolean
+  /** Selected theme pack id, or null for "never picked" (app uses its first
+   *  pack). Stored as an opaque string — whether it still names a real pack
+   *  is decided where themes are looked up, not here. */
+  themeId: string | null
 }
 
 // Speaking numbers aloud is opt-in (no surprise audio on first open); reduced
 // motion defaults to "follow the OS" (false = don't force it).
-const DEFAULT_SETTINGS: PersistedSettings = { ttsEnabled: false, reducedMotion: false }
+const DEFAULT_SETTINGS: PersistedSettings = {
+  ttsEnabled: false,
+  reducedMotion: false,
+  themeId: null,
+}
 
 export function saveSettings(settings: PersistedSettings): boolean {
   return writeJSON(SETTINGS_KEY, settings)
@@ -115,5 +123,7 @@ export function loadSettings(): PersistedSettings {
       typeof parsed.reducedMotion === 'boolean'
         ? parsed.reducedMotion
         : DEFAULT_SETTINGS.reducedMotion,
+    themeId:
+      typeof parsed.themeId === 'string' ? parsed.themeId : DEFAULT_SETTINGS.themeId,
   }
 }

@@ -30,6 +30,25 @@ Update at the end of each phase. Keep it terse — one line per thing, not prose
   TTS) wired on draw via `useDrawWithSound`, off by default. `settingsStore`
   (`tambola:host:settings`) + `SettingsSheet` behind a header gear (theme picker moved
   in, TTS + reduce-motion). `vercel.json` SPA rewrite fixed the `/t` 404 on Vercel.
+- **P10 themed host + home screen** (RUNBOOK Tasks 11+12) — `stageVariables` extracted
+  from DisplayMode into `src/themes/stage.ts`; App root sets the same CSS variables, so
+  the active theme's `display`/`accent` tokens paint the HOST screen too (number,
+  phrase, board, DRAW button); packs without tokens get the neutral default, token by
+  token. `HomeScreen` front door: theme pick (live repaint), Resume/Continue/Start,
+  entries to Tickets / Room display (same-tab `?display=1&theme=`) / Settings. Home is
+  the resume gate on the host path; `ResumeGamePrompt` still guards `?display=1` loads.
+  Theme choice persisted (`themeId` in settingsStore, stale ids fall back to first
+  pack) — pulled forward from Task 13. Header "New Game" dropped (home owns it).
+- **P11 Task 13 + UI pass 1** — cast button on the caller header (same-tab
+  `?display=1&theme=`), `GameOverCard` (trophy, New Game, no confirm — game finished).
+  Visual redesign, all still token-painted: Fraunces (self-hosted `@fontsource`,
+  offline-safe) as `font-display`; ambient accent glow on the App root
+  (color-mix from `--board-called`); number hero card (overline, dashed accent ring,
+  phrase pill, spring entrance); `RecentNumbers` 5-chip strip; board in a panel card;
+  gradient+glow DRAW/CTA recipe; `ThemePicker` is now live-preview cards painted in
+  each pack's own palette (`themeSwatch` in stage.ts); inline Lucide-path icon set
+  (`components/icons.tsx`); icon header with 44px targets, labels fold away below
+  `sm`. Player `/t` untouched this pass.
 
 ## Not started
 
@@ -39,10 +58,8 @@ Update at the end of each phase. Keep it terse — one line per thing, not prose
   Studio (no JDK/SDK in the build env), and set `VITE_TICKET_ORIGIN` to the deployed URL
   before `cap:sync` so ticket QRs resolve (native origin is `http://localhost`).
 - Portfolio README — **done** (no case study, dropped by decision).
-- **V1 completion (RUNBOOK Tasks 11–13), next:** apply the active theme's visual
-  identity to the HOST screen too (today only `?display=1` is themed; host is hardcoded
-  neutral); a home/landing screen + navigation; small flow/UX gaps (cast-display
-  button/QR, persist selected theme, game-over screen, first-run hint).
+- **V1 flow complete (Tasks 11–13 done).** Next: UI refinement passes (P11 was pass 1;
+  player `/t` and panels — Tickets/Verifier/Settings — not yet restyled), then packs.
 - Football pack (Task 14), custom family pack (Task 15).
 - Display has no remote channel to the host's phone — a future decision, and it must
   never route through `/t`.

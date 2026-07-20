@@ -31,7 +31,7 @@ export function PaceIndicator({ lastDrawnAt }: PaceIndicatorProps) {
 
   return (
     <p
-      className="h-5 text-sm text-white/50 transition-opacity duration-700"
+      className="h-5 text-sm text-(--stage-chrome) transition-opacity duration-700"
       style={{ opacity: visible ? 1 : 0 }}
     >
       Next number?
