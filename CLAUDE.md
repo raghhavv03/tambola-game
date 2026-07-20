@@ -42,7 +42,13 @@ If a requested feature violates any of these, say so and stop — don't build a
   in CSS; entry is `@import 'tailwindcss'` in `src/index.css`)
 - zustand for state, motion (framer-motion successor) for animation
 - Vitest for tests (`npm test`), config in `vitest.config.ts`, node environment
+- PWA via `vite-plugin-pwa` (injectManifest). We OWN the service worker `src/sw.ts` —
+  precache-only, never relays between clients; `airgap.test.ts` asserts that. Registered
+  in `main.tsx`.
 - No backend. Everything is local, static, offline-capable.
+- **Deploy:** `/t` is a client route with no file behind it, so a static host must
+  rewrite unknown paths to `index.html` or scanned QRs 404. `vercel.json` does this for
+  Vercel; `vite dev` already does it locally.
 
 Themes load from `themes/*.json`. Renderer must stay theme-agnostic: adding a theme
 must never require a component change. If it does, the schema is broken — fix the
@@ -70,3 +76,12 @@ I'm new to this stack. So:
   abstraction.
 - When I ask for something that's a bad idea, tell me directly and say why. Don't
   quietly build it anyway.
+
+## How we work here
+
+- Build features directly, in one pass, the way tasks 1–8 were built. NO multi-doc
+  spec+plan ceremony, no subagent handoffs, no `superpowers` skill chain. Just build it.
+- Tests where they earn it: the engine (`caller`, `ticket`) and persistence get real
+  tests. Components are verified by build + lint + a quick browser check — don't write
+  React component unit tests, don't over-test, don't churn tokens.
+- Keep it simple but impressive. Boring code, sharp result.

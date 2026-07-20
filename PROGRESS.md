@@ -217,6 +217,39 @@ This file is state, not rules — update it at the end of each phase.
 - Design spec + implementation plan for this phase lived in `docs/superpowers/`
   (removed after landing — PROGRESS.md is the state record; git history retains them)
 
+**Phase 9 — PWA, wake lock, sound, settings**
+- **Installable, offline PWA** — `vite-plugin-pwa` in `injectManifest` mode with an
+  OWNED service worker `src/sw.ts` (precache-only: `precacheAndRoute(self.__WB_MANIFEST)`
+  and nothing else). Registered in `src/main.tsx` for BOTH routes, so a scanned `/t`
+  ticket also works offline. The SW's leading comment states THE AIRGAP invariant: it
+  must never relay messages between clients (that would be a caller→`/t` channel).
+  `src/sw.ts` is excluded from `tsconfig.app.json` (WebWorker vs DOM lib clash; the
+  plugin compiles it). Manifest: "Tambola Host", standalone, neutral-950 theme.
+  Original saffron "90" numeral icon (`public/app-icon.svg` → generated
+  192/512/maskable/apple-touch via `@vite-pwa/assets-generator`). Deleted dead
+  scaffold `public/icons.svg`; `favicon.svg` replaced with the new mark
+- **Airgap assertion added** — `src/player/airgap.test.ts` gains ONE `it` (existing
+  assertions untouched): it reads `src/sw.ts` source and fails on `clients.matchAll`,
+  `clients.get`, or `.postMessage(`. The real SW invariant is "relays nothing between
+  clients," not "which file calls register()"
+- **Wake lock** — `src/useWakeLock.ts`: holds a screen wake lock while a host surface
+  is mounted, re-acquires on `visibilitychange`, releases on unmount, feature-detected
+  no-op where unsupported. No toggle. Used by `App.tsx` + `DisplayMode.tsx`
+- **Sound** — `src/sound.ts`: on draw, speaks the drawn number's phrase — a recorded
+  clip if a pack ships `theme.calls[n].audio` (none do yet; path dormant but built),
+  else Web Speech API TTS. `langFromLocale` strips a script subtag (`hi-IN-latn` →
+  `hi-IN`). Wired via `src/useDrawWithSound.ts` in the draw handler (not an effect), so
+  undo and resume never speak. Off by default
+- **Settings** — `src/store/settingsStore.ts` persisted to `tambola:host:settings`
+  (disjoint from `tambola:marks:` / `tambola:host:game` / `tambola:host:bogeys`).
+  `SettingsSheet.tsx` behind a header gear: theme picker (moved out of the header),
+  Speak-numbers toggle, Reduce-motion toggle. `useReducedMotionSetting` ORs the OS
+  preference with the user toggle (can only ADD reduction) and feeds `DisplayMode`'s
+  animation gate
+- 90 tests passing (was 52 pre-Phase-8; +milestone/persistence +this phase), build +
+  lint clean. `vitest.config.ts` now excludes `.claude/**` so a stale worktree snapshot
+  isn't double-discovered. No analytics/accounts/tracking added
+
 ## Not started
 
 - Display mode has no channel to the host's phone — drawing happens on the device
@@ -234,8 +267,11 @@ This file is state, not rules — update it at the end of each phase.
 - Tests use fixed seeds for reproducibility; if a test fails, the seed in the
   failure message is the reproduction case — don't just re-run and hope.
 - **Deploying:** `/t` is a client route with no file behind it. Any static host must
-  rewrite unknown paths to `index.html` (Netlify `_redirects`, Vercel rewrites, Caddy
-  `try_files`) or scanned QRs 404. `vite dev` already does this.
+  rewrite unknown paths to `index.html` or scanned QRs 404. **`vercel.json` (rewrite
+  `/(.*)` → `/index.html`) now ships in the repo — this fixed the Vercel 404 on
+  scanning a ticket.** Other hosts need their own (Netlify `_redirects`, Caddy
+  `try_files`). `vite dev` already does this. Filesystem files (`sw.js`, `assets/*`,
+  `manifest.webmanifest`) resolve before the rewrite, so the catch-all is safe.
 - **Handing out QRs:** the codes encode `window.location.origin`, so the host must be
   serving on a LAN address (`npm run dev -- --host`) — phones can't open `localhost`.
   The Tickets panel says so when it detects it.
