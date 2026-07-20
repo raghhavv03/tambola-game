@@ -29,7 +29,14 @@ import { useDrawWithSound } from '../useDrawWithSound'
 import { useWakeLock } from '../useWakeLock'
 import { useReducedMotionSetting } from '../useReducedMotionSetting'
 import { stageVariables } from '../themes/stage'
+import { ChevronLeftIcon } from './icons'
 import type { Theme } from '../themes/types'
+
+/** Leave the stage: back to the host app in this same tab. Game state is
+ *  persisted on every draw, so nothing is lost crossing over. */
+function exitToHost() {
+  window.location.assign('/')
+}
 
 const ALL_NUMBERS = Array.from({ length: 90 }, (_, i) => i + 1)
 
@@ -142,6 +149,8 @@ export function DisplayMode({ theme }: DisplayModeProps) {
         drawWithSound()
       } else if (event.key === 'Backspace' || event.key.toLowerCase() === 'u') {
         undo()
+      } else if (event.key === 'Escape') {
+        exitToHost()
       }
     }
     window.addEventListener('keydown', onKey)
@@ -204,9 +213,25 @@ export function DisplayMode({ theme }: DisplayModeProps) {
         className="flex items-baseline justify-between px-[3vw] pt-[2vh] text-(--stage-chrome)"
         style={{ fontSize: 'clamp(0.9rem, 2.2vh, 1.6rem)' }}
       >
-        <span className="font-display font-semibold tracking-[0.15em] uppercase">
-          {theme.name}
-        </span>
+        <div className="flex items-center gap-[1.5vw]">
+          {/* The way back off the stage. Quiet chrome so the room ignores it;
+              stopPropagation so leaving can never draw a number. */}
+          <button
+            type="button"
+            aria-label="Exit the room display"
+            onClick={(event) => {
+              event.stopPropagation()
+              exitToHost()
+            }}
+            className="flex cursor-pointer items-center gap-1 rounded-xl border border-white/10 px-[1vw] py-[0.6vh] text-(--stage-chrome) transition active:scale-95"
+          >
+            <ChevronLeftIcon />
+            Host
+          </button>
+          <span className="font-display font-semibold tracking-[0.15em] uppercase">
+            {theme.name}
+          </span>
+        </div>
         <span className="font-semibold tabular-nums">
           {called.size}
           <span className="opacity-60"> / 90</span>
@@ -266,7 +291,9 @@ export function DisplayMode({ theme }: DisplayModeProps) {
         className="px-[3vw] pb-[1.5vh] text-(--stage-chrome) opacity-60"
         style={{ fontSize: 'clamp(0.7rem, 1.6vh, 1rem)' }}
       >
-        {gameOver ? 'Game over' : 'Tap or press Space to draw · U to undo'}
+        {gameOver
+          ? 'Game over'
+          : 'Tap or press Space to draw · U to undo · Esc to exit'}
       </footer>
     </div>
   )

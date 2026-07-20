@@ -27,15 +27,9 @@ interface HomeScreenProps {
   onOpenSettings: () => void
 }
 
-/** The accent CTA — same gradient/glow recipe as the DRAW button. */
+/** The accent CTA — btn-accent is the app-wide primary-action look. */
 const PRIMARY_BUTTON =
-  'flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl px-4 py-4 text-lg font-bold text-(--board-called-text) transition active:scale-95'
-
-const PRIMARY_STYLE = {
-  background:
-    'linear-gradient(180deg, color-mix(in oklab, var(--board-called), white 12%), var(--board-called))',
-  boxShadow: '0 8px 32px color-mix(in oklab, var(--board-called), transparent 65%)',
-} as const
+  'btn-accent flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl px-4 py-4 text-lg font-bold text-(--board-called-text) transition active:scale-95'
 
 /** Quieter panel-toned action. */
 const SECONDARY_BUTTON =
@@ -85,7 +79,6 @@ export function HomeScreen({
               type="button"
               onClick={onResume}
               className={PRIMARY_BUTTON}
-              style={PRIMARY_STYLE}
             >
               <span className="flex flex-col items-center">
                 Resume game
@@ -106,7 +99,6 @@ export function HomeScreen({
               type="button"
               onClick={onPlay}
               className={PRIMARY_BUTTON}
-              style={PRIMARY_STYLE}
             >
               <span className="flex flex-col items-center">
                 Continue game
@@ -137,7 +129,6 @@ export function HomeScreen({
             type="button"
             onClick={onPlay}
             className={PRIMARY_BUTTON}
-            style={PRIMARY_STYLE}
           >
             <PlayIcon />
             Start game

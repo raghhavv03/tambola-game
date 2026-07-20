@@ -27,6 +27,12 @@ export const DEFAULT_STAGE = {
   chrome: 'rgba(255, 255, 255, 0.5)',
 } as const
 
+/** The host screens' shared background treatment: a quiet accent glow bleeding
+ *  in from the top, mixed from the theme's own accent token. Defined once so
+ *  home, caller, and the resume gate all sit in the same atmosphere. */
+export const AMBIENT_BACKGROUND =
+  'radial-gradient(ellipse 130% 60% at 50% -15%, color-mix(in oklab, var(--board-called), transparent 88%), transparent 65%), var(--stage-bg)'
+
 /** The handful of colors the theme picker needs to preview a pack — resolved
  *  with the same defaults as the stage, so the preview IS the look. */
 export interface ThemeSwatch {

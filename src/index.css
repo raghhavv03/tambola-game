@@ -9,6 +9,20 @@
   --font-display: 'Fraunces Variable', ui-serif, Georgia, serif;
 }
 
+/* THE primary-action look: the theme's accent with a slight top-light and a
+   soft glow, both mixed from the same token. One definition so DRAW, Start,
+   Resume, and New Game are visually the same action on every screen. Pair it
+   with text-(--board-called-text) — that pairing is contrast-validated by the
+   theme loader. */
+@utility btn-accent {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--board-called), white 12%),
+    var(--board-called)
+  );
+  box-shadow: 0 8px 32px color-mix(in oklab, var(--board-called), transparent 65%);
+}
+
 /* The print stylesheet. Only the ticket sheet ever reaches paper: everything on the
    host screen is marked print:hidden, and PrintSheet is hidden print:block.
 

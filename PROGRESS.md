@@ -55,6 +55,12 @@ Update at the end of each phase. Keep it terse — one line per thing, not prose
   pass (rounder cells, ticket-card frame, `font-display` on chrome text) — no logic
   touched, no new import in its module graph, `airgap.test.ts` unmodified and passing.
   Room display number now also uses `font-display`.
+- **P13 consistency pass** — one `btn-accent` CSS utility (index.css) is now THE
+  primary-action look everywhere (DRAW, Start/Resume/Continue, New Game);
+  `AMBIENT_BACKGROUND` shared const in stage.ts. ResumeGamePrompt moved onto stage
+  tokens and wrapped in the display theme's variables on `?display=1` loads (was
+  unthemed neutral+emerald). Room display gained an exit: "‹ Host" header button
+  (stopPropagation so it can't draw) + Esc key, both navigating back to `/`.
 
 ## Not started
 

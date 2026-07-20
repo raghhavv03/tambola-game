@@ -23,13 +23,7 @@ export function GameOverCard({ onNewGame }: GameOverCardProps) {
       <button
         type="button"
         onClick={onNewGame}
-        className="w-full max-w-60 cursor-pointer rounded-2xl px-4 py-3.5 text-lg font-bold text-(--board-called-text) transition active:scale-95"
-        style={{
-          background:
-            'linear-gradient(180deg, color-mix(in oklab, var(--board-called), white 12%), var(--board-called))',
-          boxShadow:
-            '0 8px 32px color-mix(in oklab, var(--board-called), transparent 65%)',
-        }}
+        className="btn-accent w-full max-w-60 cursor-pointer rounded-2xl px-4 py-3.5 text-lg font-bold text-(--board-called-text) transition active:scale-95"
       >
         New game
       </button>

@@ -25,7 +25,7 @@ import { PrintSheet } from './components/PrintSheet'
 import { ResumeGamePrompt } from './components/ResumeGamePrompt'
 import { useTicketSetStore } from './store/ticketSetStore'
 import { themes } from './themes'
-import { stageVariables } from './themes/stage'
+import { AMBIENT_BACKGROUND, stageVariables } from './themes/stage'
 import * as persist from './store/persist'
 import { resumeGame, startNewGame } from './store/gameSession'
 import { useDrawWithSound } from './useDrawWithSound'
@@ -103,23 +103,34 @@ function App() {
   // The stage. Uses the URL's theme (or the first pack) rather than the saved
   // choice — a cast tab is its own page load, addressed entirely by its URL.
   if (showDisplay) {
+    const displayTheme = themes.find((t) => t.id === urlThemeId) ?? themes[0]
     if (pendingResume !== null) {
+      // The gate wears the same theme as the stage it's about to show —
+      // wrapped here because ResumeGamePrompt renders outside the host root
+      // that normally carries the stage variables.
       return (
-        <ResumeGamePrompt
-          drawCount={pendingResume.history.length}
-          savedAt={pendingResume.savedAt}
-          onResume={() => {
-            resumeGame(pendingResume.seed, pendingResume.history)
-            setPendingResume(null)
+        <div
+          className="h-dvh"
+          style={{
+            ...(stageVariables(displayTheme) as React.CSSProperties),
+            background: AMBIENT_BACKGROUND,
           }}
-          onNewGame={() => {
-            startNewGame()
-            setPendingResume(null)
-          }}
-        />
+        >
+          <ResumeGamePrompt
+            drawCount={pendingResume.history.length}
+            savedAt={pendingResume.savedAt}
+            onResume={() => {
+              resumeGame(pendingResume.seed, pendingResume.history)
+              setPendingResume(null)
+            }}
+            onNewGame={() => {
+              startNewGame()
+              setPendingResume(null)
+            }}
+          />
+        </div>
       )
     }
-    const displayTheme = themes.find((t) => t.id === urlThemeId) ?? themes[0]
     return <DisplayMode theme={displayTheme} />
   }
 
@@ -134,10 +145,7 @@ function App() {
       className="flex h-dvh flex-col text-white print:hidden"
       style={{
         ...(variables as React.CSSProperties),
-        // Quiet accent glow bleeding in from the top — mixed from the theme's
-        // own accent so every pack gets its own ambience for free.
-        background:
-          'radial-gradient(ellipse 130% 60% at 50% -15%, color-mix(in oklab, var(--board-called), transparent 88%), transparent 65%), var(--stage-bg)',
+        background: AMBIENT_BACKGROUND,
       }}
     >
       {resumeError !== null && (

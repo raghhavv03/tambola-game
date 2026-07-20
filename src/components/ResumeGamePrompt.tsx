@@ -1,12 +1,13 @@
 // Shown once at startup when a saved game (src/store/persist.ts) is found —
 // never silently: a host opening the app mid-party must see what they're
 // about to resume before it happens, not inherit last week's game by
-// accident. Same full-screen overlay pattern as VerifierPanel, but on top of
-// it (z-70) since this gate runs before any other panel could be open.
+// accident.
 //
 // On the normal host path the HOME screen is this gate now (its Resume /
 // Start-new buttons); this component still guards `?display=1` page loads,
-// which skip home and go straight to the stage.
+// which skip home and go straight to the stage. App wraps it in the display
+// theme's stage variables, so it matches the stage it's about to show —
+// same tokens, same btn-accent primary as every other screen.
 
 import { formatRelativeTime } from '../relativeTime'
 
@@ -26,10 +27,12 @@ export function ResumeGamePrompt({
   const savedAgo = formatRelativeTime(savedAt)
 
   return (
-    <div className="fixed inset-0 z-70 flex flex-col items-center justify-center gap-6 bg-neutral-950 px-6 text-center text-white">
+    <div className="fixed inset-0 z-70 flex flex-col items-center justify-center gap-6 px-6 text-center text-white">
       <div>
-        <h2 className="font-display text-2xl font-bold">Resume the last game?</h2>
-        <p className="mt-2 text-sm text-neutral-400">
+        <h2 className="font-display text-2xl font-bold text-(--stage-number)">
+          Resume the last game?
+        </h2>
+        <p className="mt-2 text-sm text-(--stage-chrome)">
           {drawCount} number{drawCount === 1 ? '' : 's'} called, saved {savedAgo}.
         </p>
       </div>
@@ -37,14 +40,14 @@ export function ResumeGamePrompt({
         <button
           type="button"
           onClick={onResume}
-          className="rounded-xl bg-emerald-500 px-4 py-3 text-base font-bold text-neutral-950"
+          className="btn-accent cursor-pointer rounded-2xl px-4 py-3.5 text-base font-bold text-(--board-called-text) transition active:scale-95"
         >
           Resume game
         </button>
         <button
           type="button"
           onClick={onNewGame}
-          className="rounded-xl bg-neutral-800 px-4 py-3 text-base font-semibold text-neutral-300"
+          className="cursor-pointer rounded-2xl border border-white/5 bg-(--stage-panel) px-4 py-3 text-base font-semibold text-(--stage-number) transition active:scale-95"
         >
           Start new game
         </button>
