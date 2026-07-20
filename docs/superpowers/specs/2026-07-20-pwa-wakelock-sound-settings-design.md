@@ -2,7 +2,9 @@
 
 Four independent host-side capabilities. None touches the engine, the theme schema,
 or `/t`. THE AIRGAP holds throughout: no new file is reachable from
-`src/player/PlayerApp.tsx`, and `src/player/airgap.test.ts` must pass **unmodified**.
+`src/player/PlayerApp.tsx`. Every EXISTING assertion in `src/player/airgap.test.ts`
+passes unchanged; this phase adds exactly one new assertion (the SW message-relay
+check, see §1 / Testing) and modifies none of the existing ones.
 
 ## Governing constraints (all four features)
 
@@ -10,8 +12,9 @@ or `/t`. THE AIRGAP holds throughout: no new file is reachable from
   never from `PlayerApp.tsx`.
 - The one exception is the service worker (see §1), which by nature also caches the
   `/t` page. It is precache-only — it carries no game state and opens no channel from
-  the caller to the player. `airgap.test.ts` still passes unmodified because its SW
-  registration lives in `main.tsx`, which the test does not walk.
+  the caller to the player. The invariant is enforced structurally, not by trust: the
+  SW source (`src/sw.ts`) relays no messages between clients, and one added assertion in
+  `airgap.test.ts` checks exactly that (§1).
 - New localStorage key: `tambola:host:settings`. Disjoint from the player's
   `tambola:marks:` and from `tambola:host:game` / `tambola:host:bogeys`.
 - No analytics, no tracking, no accounts, no third-party IP.
@@ -24,9 +27,28 @@ or `/t`. THE AIRGAP holds throughout: no new file is reachable from
 
 **Plugin:** `vite-plugin-pwa` (dev dependency), configured in `vite.config.ts`.
 
+**Strategy:** `injectManifest` with our own SW source at `src/sw.ts`, NOT `generateSW`.
+Reason: the airgap invariant is "the SW never relays messages between clients," and we
+can only assert that against a SW file we own. `generateSW` gives us no source to point
+an assertion at. `src/sw.ts` is the SW entry (referenced by the plugin config); it is
+NOT imported by `App.tsx` or `PlayerApp.tsx`, so it stays out of both airgap-walked
+graphs even though it runs in the player's browser context at `/t`.
+
+**`src/sw.ts`:** precache-only. `precacheAndRoute(self.__WB_MANIFEST)` and nothing else.
+- Leads with a comment stating THE AIRGAP invariant in full: this worker exists only to
+  serve cached static files offline. It must NEVER call `clients.matchAll()` /
+  `clients.get()` and NEVER `postMessage` to a client — doing so would forward data
+  from the host's browser context into the player's (`/t`), which is exactly the
+  caller-to-player channel the airgap forbids. Registration lives in a file, but the
+  guarantee lives here: no relay code, ever.
+- No `message` event listener, no `skipWaiting`-via-message plumbing (with
+  `registerType: 'autoUpdate'` the generated registration handles updates; the SW body
+  needs no message handling).
+
 **Config:**
 - `registerType: 'autoUpdate'` — the SW updates itself; no update-prompt UI (YAGNI for
   a single-operator prop).
+- `strategies: 'injectManifest'`, `srcDir: 'src'`, `filename: 'sw.ts'`.
 - `manifest`:
   - `name: 'Tambola Host'`, `short_name: 'Tambola'`
   - `description` — one line matching the app.
@@ -36,9 +58,9 @@ or `/t`. THE AIRGAP holds throughout: no new file is reachable from
     own background — no flash on launch).
   - `start_url: '/'`, `scope: '/'`.
   - `icons`: 192 (any), 512 (any), 512 (maskable).
-- `workbox.globPatterns`: `['**/*.{js,css,html,svg,png,woff2,json}']` — precache every
-  built asset. Everything is local, so precache == full offline. No runtime caching
-  rules needed.
+- `injectManifest.globPatterns`: `['**/*.{js,css,html,svg,png,woff2,json}']` — precache
+  every built asset. Everything is local, so precache == full offline. No runtime
+  caching rules.
 - `includeAssets`: the favicon + apple-touch-icon so they're precached too.
 
 **Registration:** in `src/main.tsx` (top level, before the route split), import the
@@ -48,7 +70,8 @@ or `/t`. THE AIRGAP holds throughout: no new file is reachable from
   so this does not breach the airgap.
 - `airgap.test.ts` walks the import graph **from `PlayerApp.tsx` and `App.tsx`**, not
   from `main.tsx`. Registration code is therefore outside both walked graphs and the
-  test's `serviceWorker`/`postMessage` bans do not trip. The test stays unmodified.
+  test's existing `serviceWorker`/`postMessage` bans (which scan the player graph) do
+  not trip, and none of those existing assertions change.
 - Registration is feature-detected and wrapped so a browser without SW support is a
   silent no-op.
 
@@ -181,4 +204,10 @@ build/lint/manual browser check):
 - `useWakeLock`, `SettingsSheet`, PWA manifest — verified by build + manual in-browser
   check (install prompt, offline reload, gear → sheet, toggles persist across reload,
   TTS speaks on draw when enabled, screen stays awake).
-- `airgap.test.ts` — must pass **unmodified**. If it fails, the change is wrong.
+- **`airgap.test.ts` — the existing suite passes UNMODIFIED** (its player-graph and
+  host-graph walks are untouched by this phase). Add exactly ONE new assertion to it
+  (one `it`, not a new suite/file) encoding the real SW invariant: read `src/sw.ts` and
+  assert its source relays no messages between clients — no `clients.matchAll`, no
+  `clients.get`, no `postMessage(` in the SW body. This is the honest airgap check for
+  the PWA: not "which file calls register()", but "the worker cannot forward caller
+  state into `/t`." A comment on the assertion states that rationale.
