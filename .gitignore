@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Capacitor native project — regenerate with `npx cap add android` +
+# `npx @capacitor/assets generate --android ...` (source is assets/logo.png).
+# Not tracked while we're web-only; capacitor.config.ts + assets/ stay tracked.
+android
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

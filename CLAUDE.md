@@ -46,6 +46,10 @@ If a requested feature violates any of these, say so and stop — don't build a
   precache-only, never relays between clients; `airgap.test.ts` asserts that. Registered
   in `main.tsx`.
 - No backend. Everything is local, static, offline-capable.
+- **Native:** Capacitor wraps the web build (`android/`, `capacitor.config.ts`) — HOST
+  app only. Players never install it; they scan a QR that opens `/t` in their browser.
+  Native origin is `http://localhost`, so ticket QRs use `VITE_TICKET_ORIGIN` (the
+  deployed web URL) set at build time — see TicketsPanel.
 - **Deploy:** `/t` is a client route with no file behind it, so a static host must
   rewrite unknown paths to `index.html` or scanned QRs 404. `vercel.json` does this for
   Vercel; `vite dev` already does it locally.

@@ -28,12 +28,35 @@ lock + sound + settings. Plus: host persistence, milestone phrases, Vercel SPA r
 ## Remaining
 
 ### Task 9 · Capacitor Android wrap — Opus 4.8
-Wrap the exact web build as a native Android app (`@capacitor/core` + cli, `cap add
-android`, build, sync). App id/name/icons/splash. Get to a working debug `.apk` on a real
-phone; walk Android Studio setup step by step. Then state plainly what's still needed for
-a Play Store release (it's not done): $25 fee, privacy policy URL, Data Safety form,
-content rating (**declare no gambling, no real money — truthfully**), and for individual
-accounts **12 testers, 14-day closed test** — that clock is the long pole.
+
+**Repo setup DONE** (this session): `@capacitor/core` + `cli` + `android` installed,
+`capacitor.config.ts` (appId `com.raghavgupta.tambola`, appName "Tambola Host",
+webDir `dist`), `android/` platform scaffolded, icons + splash generated from
+`assets/logo.png` (the saffron "90", dark bg) via `@capacitor/assets`. Scripts:
+`npm run cap:sync` (build + copy into android), `npm run cap:open` (open Android Studio).
+
+**One required config for delivery:** inside the native app `window.location.origin` is
+`http://localhost`, which a player's phone can't open. So the ticket QRs read
+`VITE_TICKET_ORIGIN` (TicketsPanel). **Before building the native app, set it to the
+deployed web URL:**
+```bash
+VITE_TICKET_ORIGIN="https://<your-vercel-app>.vercel.app" npm run cap:sync
+```
+Web builds leave it unset (QRs use the current origin, unchanged). This moves a URL
+format only — the airgap holds.
+
+**Build the APK (your machine — needs Android Studio + JDK, not available in the build
+env here):**
+1. Install Android Studio (bundles the SDK + JDK).
+2. `npm run cap:open` → opens the `android/` project in Android Studio.
+3. Let Gradle sync. Plug in your phone (USB debugging on) or start an emulator.
+4. Run ▶, or Build → Build APK(s); the debug `.apk` lands in
+   `android/app/build/outputs/apk/debug/`.
+
+**Play Store (NOT done, state plainly):** $25 one-time fee, privacy policy URL, Data
+Safety form, content rating (**declare no gambling, no real money — truthfully**), and
+for individual accounts **12 testers running a 14-day closed test** — that clock is the
+long pole. iOS is $99/yr and stricter — Android first, or neither.
 
 ### Task 10 · README + case study — Sonnet 5
 README for a portfolio reader: what it is, the thesis (*host performs, phone is the

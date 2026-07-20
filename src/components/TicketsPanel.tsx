@@ -33,7 +33,12 @@ export function TicketsPanel({ onClose, onPrint }: TicketsPanelProps) {
   // Which ticket's link was just copied, so we can show a brief confirmation.
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
-  const origin = window.location.origin
+  // Where the QRs point. Normally the current origin. But in the native (Capacitor)
+  // build that origin is `http://localhost`, which a player's phone can't open — so a
+  // native build sets VITE_TICKET_ORIGIN to the deployed web URL (e.g. the Vercel
+  // site) and the QRs encode that instead. Web builds leave it unset and behave as
+  // before. This is a URL format only — it moves no game state, so the airgap holds.
+  const origin = import.meta.env.VITE_TICKET_ORIGIN || window.location.origin
 
   async function copyLink(id: string) {
     try {
