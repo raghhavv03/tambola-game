@@ -95,6 +95,12 @@ All four items landed (persist-theme + first-run hint in Task 12; cast button on
 caller header + GameOverCard in the UI pass). Host casts in one tap, theme sticks
 across reloads, finished game has a clear end + New Game.
 
+### UI refinement (ongoing, between 13 and 14)
+Passes 1–3 done (see PROGRESS P11–P13): Fraunces + tokens everywhere, home/caller
+redesign, panels themed, one `btn-accent` primary look, display exit. The worksheet
+for further element-by-element polish is **UI_INVENTORY.md** — work through it screen
+by screen; verify in BOTH packs (Plain + Puranic) every time.
+
 ---
 
 ## Post-V1 — new packs

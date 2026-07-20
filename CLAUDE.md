@@ -71,6 +71,15 @@ network/storage. `caller.ts` (number draw order) and `ticket.ts` (ticket generat
 claim verification) share one seeded PRNG (`rng.ts`). See PROGRESS.md for what's built
 and what's next.
 
+**UI system:** every host surface is painted by the active theme's stage tokens
+(`src/themes/stage.ts` — CSS variables resolved from the pack's `display`/`accent`
+block, neutral defaults when absent). `btn-accent` in `src/index.css` is the ONE
+primary-button look; `font-display` is Fraunces (self-hosted via `@fontsource`, keeps
+the PWA offline-safe — never add a font CDN). Semantic colors stay unthemed on
+purpose: amber = warning, red = bogey, emerald = valid. The player ticket (`/t`) is
+deliberately neutral — theming it would leak which pack the host runs. The
+screen-by-screen element inventory for UI work is `UI_INVENTORY.md`.
+
 ## Working with me
 
 I'm new to this stack. So:

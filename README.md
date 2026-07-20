@@ -56,10 +56,17 @@ Authoring a pack: see **[THEME_PACK_GUIDE.md](THEME_PACK_GUIDE.md)**.
 
 ## Surfaces
 
-- **Host screen** (`/`) — the caller: giant number, themed phrase, DRAW, a 1–90 board,
-  undo, tickets, claim verifier, settings.
+- **Home** (`/`) — the front door: pick a theme (live-preview cards), start or resume
+  a game, reach Tickets / Room display / Settings.
+- **Caller** (`/`, after Start) — giant number, themed phrase, DRAW, a 1–90 board,
+  undo, tickets, claim verifier, settings, cast-to-display.
 - **Player ticket** (`/t#<id>`) — a scanned ticket, tap to mark. Airgapped.
-- **Room display** (`/?display=1`) — the stage for a TV/projector; cast or HDMI.
+- **Room display** (`/?display=1&theme=<id>`) — the stage for a TV/projector; cast or
+  HDMI. Esc / "‹ Host" exits back to the app.
+
+The active theme's design tokens paint every host surface; the player ticket stays
+deliberately neutral (it must not know which pack the host is using — see the airgap).
+Full element-by-element breakdown: **[UI_INVENTORY.md](UI_INVENTORY.md)**.
 
 Runs fully offline as an installable PWA; wraps to a native Android app via Capacitor.
 No backend, no accounts, no analytics, no money features — real-money gaming is illegal
