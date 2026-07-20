@@ -204,7 +204,7 @@ export function DisplayMode({ theme }: DisplayModeProps) {
         className="flex items-baseline justify-between px-[3vw] pt-[2vh] text-(--stage-chrome)"
         style={{ fontSize: 'clamp(0.9rem, 2.2vh, 1.6rem)' }}
       >
-        <span className="font-semibold tracking-[0.15em] uppercase">
+        <span className="font-display font-semibold tracking-[0.15em] uppercase">
           {theme.name}
         </span>
         <span className="font-semibold tabular-nums">
@@ -220,7 +220,7 @@ export function DisplayMode({ theme }: DisplayModeProps) {
           <motion.div
             key={drawSeq}
             {...numberEntrance}
-            className="font-black leading-none text-(--stage-number) tabular-nums"
+            className="font-display font-black leading-none text-(--stage-number) tabular-nums"
             // vh-led sizing: the number's ceiling is the screen's height, with a
             // vw guard so a narrow projector can't clip "90". Tight tracking
             // makes two digits read as one mark. The halo (if the theme has

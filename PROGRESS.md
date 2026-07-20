@@ -48,7 +48,13 @@ Update at the end of each phase. Keep it terse — one line per thing, not prose
   gradient+glow DRAW/CTA recipe; `ThemePicker` is now live-preview cards painted in
   each pack's own palette (`themeSwatch` in stage.ts); inline Lucide-path icon set
   (`components/icons.tsx`); icon header with 44px targets, labels fold away below
-  `sm`. Player `/t` untouched this pass.
+  `sm`.
+- **P12 UI pass 2** — Tickets/Verifier/Settings panels moved onto stage tokens
+  (border/panel/chrome/number/phrase), Fraunces headings, icon buttons; QR stays flat
+  white/black (scanning requirement, never themed). Player `/t` got a cosmetic-only
+  pass (rounder cells, ticket-card frame, `font-display` on chrome text) — no logic
+  touched, no new import in its module graph, `airgap.test.ts` unmodified and passing.
+  Room display number now also uses `font-display`.
 
 ## Not started
 
@@ -58,8 +64,9 @@ Update at the end of each phase. Keep it terse — one line per thing, not prose
   Studio (no JDK/SDK in the build env), and set `VITE_TICKET_ORIGIN` to the deployed URL
   before `cap:sync` so ticket QRs resolve (native origin is `http://localhost`).
 - Portfolio README — **done** (no case study, dropped by decision).
-- **V1 flow complete (Tasks 11–13 done).** Next: UI refinement passes (P11 was pass 1;
-  player `/t` and panels — Tickets/Verifier/Settings — not yet restyled), then packs.
+- **V1 flow + UI refinement complete (Tasks 11–13, UI passes 1–2).** Every screen is
+  now token-painted or deliberately neutral (player `/t`). Next: packs (14–15), or
+  further UI polish on user feedback.
 - Football pack (Task 14), custom family pack (Task 15).
 - Display has no remote channel to the host's phone — a future decision, and it must
   never route through `/t`.

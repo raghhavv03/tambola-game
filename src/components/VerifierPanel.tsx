@@ -43,9 +43,8 @@ export function VerifierPanel({ onClose, theme }: VerifierPanelProps) {
   const [input, setInput] = useState('')
   // The dividend just ruled on, so the host gets a visible confirmation the tap landed.
   const [lastRuled, setLastRuled] = useState<Dividend | null>(null)
-  // The dividend's milestone phrase, shown only after a VALID ruling — reuses
-  // NumberDisplay's text-amber-200 phrase-text treatment rather than a new
-  // component or animation. Phase 4's reaction layer stays removed.
+  // The dividend's milestone phrase, shown only after a VALID ruling — reuses the
+  // stage's phrase-text treatment rather than a new component or animation.
   const [milestonePhrase, setMilestonePhrase] = useState<string | null>(null)
 
   // Parsed live as the host types — the verdict appears the moment the ID is complete,
@@ -62,13 +61,15 @@ export function VerifierPanel({ onClose, theme }: VerifierPanelProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-60 overflow-y-auto bg-neutral-950 text-white">
-      <header className="sticky top-0 flex items-center justify-between gap-3 border-b border-neutral-800 bg-neutral-950 px-4 py-3">
-        <h2 className="text-lg font-bold">Check a claim</h2>
+    <div className="fixed inset-0 z-60 overflow-y-auto bg-(--stage-bg) text-white">
+      <header className="sticky top-0 flex items-center justify-between gap-3 border-b border-white/5 bg-(--stage-bg)/95 px-4 py-3 backdrop-blur">
+        <h2 className="font-display text-xl font-bold text-(--stage-number)">
+          Check a claim
+        </h2>
         <button
           type="button"
           onClick={onClose}
-          className="rounded-lg bg-neutral-800 px-4 py-2 text-sm font-semibold"
+          className="cursor-pointer rounded-xl bg-(--stage-panel) px-4 py-2 text-sm font-semibold transition active:scale-95"
         >
           Close
         </button>
@@ -84,9 +85,9 @@ export function VerifierPanel({ onClose, theme }: VerifierPanelProps) {
             setMilestonePhrase(null)
           }}
           placeholder="Ticket ID, e.g. K3P9Z-04"
-          className="w-full rounded-xl bg-neutral-900 px-4 py-3 font-mono text-lg tracking-widest uppercase placeholder:normal-case placeholder:tracking-normal placeholder:text-neutral-600"
+          className="w-full rounded-xl border border-white/5 bg-(--stage-panel) px-4 py-3 font-mono text-lg tracking-widest text-(--stage-number) uppercase placeholder:normal-case placeholder:tracking-normal placeholder:text-(--stage-chrome)"
         />
-        <p className="mt-1 text-xs text-neutral-500">
+        <p className="mt-1 text-xs text-(--stage-chrome)">
           {history.length} number{history.length === 1 ? '' : 's'} called so far.
         </p>
       </div>
@@ -100,7 +101,7 @@ export function VerifierPanel({ onClose, theme }: VerifierPanelProps) {
       {ticket !== null && ticketId !== null && (
         <div className="px-4 pb-8">
           <div className="mb-3 flex items-center justify-between">
-            <span className="font-mono tracking-widest text-neutral-300">
+            <span className="font-mono tracking-widest text-(--stage-chrome)">
               {ticketId}
             </span>
             {(bogeys[ticketId] ?? 0) > 0 && (
@@ -112,7 +113,7 @@ export function VerifierPanel({ onClose, theme }: VerifierPanelProps) {
           </div>
 
           {milestonePhrase !== null && (
-            <p className="mb-3 text-center text-lg font-semibold text-amber-200 sm:text-xl">
+            <p className="mb-3 text-center text-lg font-semibold text-(--stage-phrase) sm:text-xl">
               {milestonePhrase}
             </p>
           )}
@@ -120,7 +121,9 @@ export function VerifierPanel({ onClose, theme }: VerifierPanelProps) {
           {/* The ticket itself, with the numbers that have genuinely been called
               lit up. This is the host's cross-reference, on the host's screen —
               exactly what a host does today with a printed sheet and a pen. */}
-          <TicketFace ticket={ticket} calledNumbers={called} />
+          <div className="rounded-2xl border border-white/5 bg-(--stage-panel) p-2">
+            <TicketFace ticket={ticket} calledNumbers={called} />
+          </div>
 
           <ul className="mt-4 flex flex-col gap-2">
             {DIVIDENDS.map(({ key, label }) => {
@@ -132,11 +135,11 @@ export function VerifierPanel({ onClose, theme }: VerifierPanelProps) {
               return (
                 <li
                   key={key}
-                  className="flex items-center justify-between gap-3 rounded-xl bg-neutral-900 px-3 py-2"
+                  className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-(--stage-panel) px-3 py-2"
                 >
                   <div className="min-w-0">
-                    <div className="font-semibold">{label}</div>
-                    <div className="text-xs tabular-nums text-neutral-500">
+                    <div className="font-semibold text-(--stage-number)">{label}</div>
+                    <div className="text-xs tabular-nums text-(--stage-chrome)">
                       {have} of {need} called
                       {result.missing.length > 0 && !result.valid && (
                         <> · missing {result.missing.join(', ')}</>
@@ -150,7 +153,7 @@ export function VerifierPanel({ onClose, theme }: VerifierPanelProps) {
                   <button
                     type="button"
                     onClick={() => rule(key, result.valid)}
-                    className={`shrink-0 rounded-lg px-4 py-2 text-sm font-bold ${
+                    className={`shrink-0 cursor-pointer rounded-lg px-4 py-2 text-sm font-bold transition active:scale-95 ${
                       result.valid
                         ? 'bg-emerald-500 text-neutral-950'
                         : 'bg-red-500/90 text-white'

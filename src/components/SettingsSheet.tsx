@@ -27,16 +27,16 @@ function Toggle({
   onChange: (value: boolean) => void
 }) {
   return (
-    <label className="flex items-center justify-between gap-4 py-3">
+    <label className="flex cursor-pointer items-center justify-between gap-4 py-4">
       <span className="flex flex-col">
-        <span className="text-sm font-semibold text-white">{label}</span>
-        <span className="text-xs text-white/50">{hint}</span>
+        <span className="text-sm font-semibold text-(--stage-number)">{label}</span>
+        <span className="text-xs text-(--stage-chrome)">{hint}</span>
       </span>
       <input
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="h-6 w-6 accent-amber-400"
+        className="h-6 w-6 shrink-0 accent-(--board-called)"
       />
     </label>
   )
@@ -50,29 +50,29 @@ export function SettingsSheet({ currentThemeId, onClose }: SettingsSheetProps) {
   const setThemeId = useSettingsStore((s) => s.setThemeId)
 
   return (
-    <div className="fixed inset-0 z-20 flex flex-col bg-neutral-950 text-white">
-      <header className="flex items-center justify-between px-4 py-3">
-        <h2 className="font-display text-xl font-bold">Settings</h2>
+    <div className="fixed inset-0 z-20 flex flex-col overflow-y-auto bg-(--stage-bg) text-white">
+      <header className="sticky top-0 flex items-center justify-between border-b border-white/5 bg-(--stage-bg)/95 px-4 py-3 backdrop-blur">
+        <h2 className="font-display text-xl font-bold text-(--stage-number)">
+          Settings
+        </h2>
         <button
           type="button"
           onClick={onClose}
-          className="rounded-lg bg-neutral-800 px-3 py-1.5 text-sm font-semibold"
+          className="cursor-pointer rounded-xl bg-(--stage-panel) px-4 py-2 text-sm font-semibold transition active:scale-95"
         >
           Done
         </button>
       </header>
 
-      <div className="flex flex-col gap-2 px-4">
-        <div className="py-3">
-          <div className="mb-2 text-sm font-semibold text-white">Theme</div>
-          <ThemePicker
-            themes={themes}
-            currentId={currentThemeId}
-            onChange={setThemeId}
-          />
+      <div className="flex flex-col gap-1 px-4 py-4">
+        <div className="pb-4">
+          <div className="mb-3 text-[0.65rem] font-semibold tracking-[0.25em] text-(--stage-chrome) uppercase">
+            Theme
+          </div>
+          <ThemePicker themes={themes} currentId={currentThemeId} onChange={setThemeId} />
         </div>
 
-        <div className="h-px bg-white/10" />
+        <div className="h-px bg-white/5" />
 
         <Toggle
           label="Speak numbers"
@@ -81,7 +81,7 @@ export function SettingsSheet({ currentThemeId, onClose }: SettingsSheetProps) {
           onChange={setTtsEnabled}
         />
 
-        <div className="h-px bg-white/10" />
+        <div className="h-px bg-white/5" />
 
         <Toggle
           label="Reduce motion"

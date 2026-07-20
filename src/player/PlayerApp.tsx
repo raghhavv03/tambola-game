@@ -14,6 +14,11 @@
 // The player hears the host, finds the number on their own ticket, and taps it. The
 // matching happens in their head. That is the entire reason this app exists.
 // `src/player/airgap.test.ts` enforces the structural half of this mechanically.
+//
+// Styling note: this screen stays a FIXED neutral palette, never theme tokens — the
+// active pack is caller-side state, and this file must not know it exists any more
+// than it knows the called numbers. `font-display` works here because it's plain CSS
+// loaded globally by index.css, not an import in this module's graph.
 // =================================================================
 
 import { useEffect, useState } from 'react'
@@ -41,7 +46,7 @@ function openTicket(ticketId: string | null): Session {
 function BadLink({ reason }: { reason: string }) {
   return (
     <div className="flex h-dvh flex-col items-center justify-center gap-3 bg-neutral-950 p-8 text-center text-white">
-      <p className="text-2xl font-bold">Can't open this ticket</p>
+      <p className="font-display text-2xl font-bold">Can't open this ticket</p>
       <p className="text-neutral-400">{reason}</p>
       <p className="text-sm text-neutral-500">
         Ask the host to show you the QR code again.
@@ -105,19 +110,19 @@ export function PlayerApp() {
 
   return (
     <div className="flex h-dvh flex-col bg-neutral-950 text-white">
-      <header className="flex items-baseline justify-between px-3 py-2">
-        <span className="text-sm text-neutral-500">Your ticket</span>
-        <span className="font-mono text-sm tracking-widest text-neutral-400">
+      <header className="flex items-baseline justify-between px-4 py-3">
+        <span className="font-display text-base font-bold">Your ticket</span>
+        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs tracking-widest text-neutral-400">
           {ticketId}
         </span>
       </header>
 
-      <main className="flex min-h-0 flex-1 items-center px-1.5">
+      <main className="flex min-h-0 flex-1 items-center px-2">
         {/* 9 columns, 3 rows. Cells are taller than they are wide: the width is
             fixed by the format (9 across a phone), so the height is where the
             touch target gets big enough to hit reliably. */}
         <div
-          className="grid w-full grid-cols-9 gap-1.5"
+          className="grid w-full grid-cols-9 gap-1.5 rounded-2xl border border-white/5 bg-white/[0.02] p-2"
           style={{ gridTemplateRows: 'repeat(3, clamp(60px, 13vh, 110px))' }}
         >
           {ticket.flatMap((row, rowIndex) =>
@@ -134,7 +139,7 @@ export function PlayerApp() {
         </div>
       </main>
 
-      <footer className="px-4 py-3 text-center text-xs leading-relaxed text-neutral-500">
+      <footer className="px-4 py-4 text-center text-xs leading-relaxed text-neutral-500">
         Tap a number to mark it. Press and hold a marked number to clear it.
         <br />
         Shout your claim out loud — the host checks it.

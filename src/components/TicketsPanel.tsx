@@ -10,6 +10,7 @@ import { useTicketSetStore } from '../store/ticketSetStore'
 import { useClaimStore } from '../store/claimStore'
 import { ticketUrl } from '../ticketLink'
 import { QrCode } from './QrCode'
+import { PrinterIcon } from './icons'
 
 interface TicketsPanelProps {
   onClose: () => void
@@ -51,13 +52,15 @@ export function TicketsPanel({ onClose, onPrint }: TicketsPanelProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-60 overflow-y-auto bg-neutral-950 text-white">
-      <header className="sticky top-0 flex items-center justify-between gap-3 border-b border-neutral-800 bg-neutral-950 px-4 py-3">
-        <h2 className="text-lg font-bold">Tickets</h2>
+    <div className="fixed inset-0 z-60 overflow-y-auto bg-(--stage-bg) text-white">
+      <header className="sticky top-0 flex items-center justify-between gap-3 border-b border-white/5 bg-(--stage-bg)/95 px-4 py-3 backdrop-blur">
+        <h2 className="font-display text-xl font-bold text-(--stage-number)">
+          Tickets
+        </h2>
         <button
           type="button"
           onClick={onClose}
-          className="rounded-lg bg-neutral-800 px-4 py-2 text-sm font-semibold"
+          className="cursor-pointer rounded-xl bg-(--stage-panel) px-4 py-2 text-sm font-semibold transition active:scale-95"
         >
           Close
         </button>
@@ -65,21 +68,21 @@ export function TicketsPanel({ onClose, onPrint }: TicketsPanelProps) {
 
       <div className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm">
         <label className="flex items-center gap-2">
-          <span className="text-neutral-400">How many</span>
+          <span className="text-(--stage-chrome)">How many</span>
           <input
             type="number"
             min={1}
             max={60}
             value={count}
             onChange={(e) => setCount(Number(e.target.value))}
-            className="w-20 rounded-lg bg-neutral-800 px-3 py-2 tabular-nums"
+            className="w-20 rounded-lg border border-white/5 bg-(--stage-panel) px-3 py-2 tabular-nums"
           />
         </label>
 
         <button
           type="button"
           onClick={regenerate}
-          className="rounded-lg bg-neutral-800 px-4 py-2 font-semibold"
+          className="cursor-pointer rounded-xl border border-white/5 bg-(--stage-panel) px-4 py-2 font-semibold transition active:scale-95"
         >
           New batch
         </button>
@@ -89,14 +92,15 @@ export function TicketsPanel({ onClose, onPrint }: TicketsPanelProps) {
         <button
           type="button"
           onClick={onPrint}
-          className="rounded-lg bg-neutral-800 px-4 py-2 font-semibold"
+          className="flex cursor-pointer items-center gap-1.5 rounded-xl border border-white/5 bg-(--stage-panel) px-4 py-2 font-semibold transition active:scale-95"
         >
+          <PrinterIcon />
           Print on paper
         </button>
       </div>
 
       {isUnreachableFromPhones(window.location.hostname) && (
-        <p className="mx-4 mb-3 rounded-lg bg-amber-500/15 px-3 py-2 text-sm text-amber-300">
+        <p className="mx-4 mb-3 rounded-xl bg-amber-500/15 px-3 py-2 text-sm text-amber-300">
           These codes point at <span className="font-mono">{origin}</span>, which
           only works on this machine. Serve on your network address
           (<span className="font-mono">npm run dev -- --host</span>) before handing
@@ -110,13 +114,17 @@ export function TicketsPanel({ onClose, onPrint }: TicketsPanelProps) {
           return (
             <li
               key={entry.id}
-              className="flex flex-col items-center gap-2 rounded-xl bg-neutral-900 p-3"
+              className="flex flex-col items-center gap-2 rounded-2xl border border-white/5 bg-(--stage-panel) p-3"
             >
-              <QrCode value={ticketUrl(origin, entry.id)} size={132} />
+              {/* The QR itself stays flat white/black — that's a scanning
+                  requirement, not a design choice, so it never takes theme tokens. */}
+              <div className="overflow-hidden rounded-lg">
+                <QrCode value={ticketUrl(origin, entry.id)} size={132} />
+              </div>
               <button
                 type="button"
                 onClick={() => void copyLink(entry.id)}
-                className="font-mono text-sm tracking-widest text-neutral-300"
+                className="cursor-pointer font-mono text-sm tracking-widest text-(--stage-chrome)"
               >
                 {copiedId === entry.id ? 'link copied' : entry.id}
               </button>

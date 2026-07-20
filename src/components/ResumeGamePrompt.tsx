@@ -28,7 +28,7 @@ export function ResumeGamePrompt({
   return (
     <div className="fixed inset-0 z-70 flex flex-col items-center justify-center gap-6 bg-neutral-950 px-6 text-center text-white">
       <div>
-        <h2 className="text-xl font-bold">Resume the last game?</h2>
+        <h2 className="font-display text-2xl font-bold">Resume the last game?</h2>
         <p className="mt-2 text-sm text-neutral-400">
           {drawCount} number{drawCount === 1 ? '' : 's'} called, saved {savedAgo}.
         </p>

@@ -120,7 +120,7 @@ export function TicketCell({
       type="button"
       // touch-none: we handle pointer gestures ourselves, and it kills the 300ms
       // tap delay plus double-tap-to-zoom, both of which make marking feel laggy.
-      className="relative flex touch-none items-center justify-center rounded-lg bg-neutral-800 text-2xl font-bold tabular-nums text-white select-none"
+      className="relative flex touch-none items-center justify-center rounded-xl bg-neutral-800/80 text-2xl font-bold tabular-nums text-white select-none"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -137,7 +137,7 @@ export function TicketCell({
           mounting and unmounting drive the animation. */}
       {marked && (
         <motion.span
-          className="absolute inset-0 rounded-lg bg-amber-400"
+          className="absolute inset-0 rounded-xl bg-amber-400"
           initial={{ scale: 0.4, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 700, damping: 22 }}
@@ -148,7 +148,7 @@ export function TicketCell({
           player can see the unmark coming and lift off to abort. */}
       {holding && (
         <motion.span
-          className="absolute inset-0 rounded-lg border-4 border-red-400"
+          className="absolute inset-0 rounded-xl border-4 border-red-400"
           initial={{ opacity: 0.9, scale: 1 }}
           animate={{ opacity: 0.9, scale: 0.82 }}
           transition={{ duration: UNMARK_HOLD_MS / 1000, ease: 'linear' }}
