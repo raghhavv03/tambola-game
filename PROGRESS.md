@@ -38,7 +38,12 @@ Update at the end of each phase. Keep it terse — one line per thing, not prose
   `assets/logo.png`. Remaining is user-machine only: build the debug `.apk` in Android
   Studio (no JDK/SDK in the build env), and set `VITE_TICKET_ORIGIN` to the deployed URL
   before `cap:sync` so ticket QRs resolve (native origin is `http://localhost`).
-- README + case study (Task 10), football pack (11), custom family pack (12).
+- Portfolio README — **done** (no case study, dropped by decision).
+- **V1 completion (RUNBOOK Tasks 11–13), next:** apply the active theme's visual
+  identity to the HOST screen too (today only `?display=1` is themed; host is hardcoded
+  neutral); a home/landing screen + navigation; small flow/UX gaps (cast-display
+  button/QR, persist selected theme, game-over screen, first-run hint).
+- Football pack (Task 14), custom family pack (Task 15).
 - Display has no remote channel to the host's phone — a future decision, and it must
   never route through `/t`.
 - `generateSet` gives distinct tickets, not the traditional book-of-6 partition of 1–90.

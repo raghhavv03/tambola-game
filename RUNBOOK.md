@@ -18,11 +18,12 @@ The last big task got buried under a spec→plan→execute ceremony. Don't do th
 - **Model:** Opus 4.8 for logic/multi-file; Fable 5 only for taste ceilings (theme packs,
   display polish). Everything else runs fine on Opus/Sonnet — don't overthink it.
 
-## Done (tasks 1–8)
+## Done (tasks 1–10)
 
 Scaffold + guardrails · caller engine · ticket + verifier · host screen · theme system
 · ticket delivery/marking/verifier + airgap · room display (`?display=1`) · PWA + wake
-lock + sound + settings. Plus: host persistence, milestone phrases, Vercel SPA rewrite
+lock + sound + settings · Capacitor Android setup (repo side; apk on user machine) ·
+portfolio README. Plus: host persistence, milestone phrases, Vercel SPA rewrite
 (`vercel.json`). See `PROGRESS.md` for the detail.
 
 ## Remaining
@@ -58,19 +59,60 @@ Safety form, content rating (**declare no gambling, no real money — truthfully
 for individual accounts **12 testers running a 14-day closed test** — that clock is the
 long pole. iOS is $99/yr and stricter — Android first, or neither.
 
-### Task 10 · README + case study — Sonnet 5
-README for a portfolio reader: what it is, the thesis (*host performs, phone is the
-teleprompter, room is the screen, automation would kill the game*), why no auto-marking /
-no ticket hints / no auto-call, and how the airgap enforces that structurally. Theme-pack
-architecture + how to author one (link `THEME_PACK_GUIDE.md`). Scaffold `CASE_STUDY.md`
-headers with a note on what evidence goes under each.
+### Task 10 · README — DONE
+Portfolio README written (thesis, non-negotiables, airgap, theme architecture, run/deploy
+pointers). Case study dropped by decision — not doing one.
 
-### Task 11 · Theme pack #2: football — Fable 5
+---
+
+## V1 completion — flow + UX (do these next, before new packs)
+
+These close out V1: the app should feel complete to use, not just be feature-complete.
+Keep them SIMPLE — structure and flow first, deep UI polish comes after (user does UI).
+
+### Task 11 · Apply the active theme across the whole app — Opus 4.8
+Right now a theme's **visual identity** (`display` token block: colors/accent) only paints
+the room display (`?display=1`). The host screen (`/`) is hardcoded neutral + amber and a
+theme only swaps its *phrases*. Make the selected theme (e.g. Puranic) paint the **host
+screen too** — number, phrase, board, accents — using the same `display`/`accent` tokens,
+with the app's neutral look as the default when a pack omits them. No new schema; reuse
+the existing token block and contrast floors. Theme-agnostic renderer stays theme-agnostic
+(no `theme.id` branches). DONE-WHEN: picking Puranic on the host screen visibly themes it,
+plain.json still renders the default look, and adding a future pack needs zero component
+edits.
+
+### Task 12 · Home screen + navigation — Opus 4.8
+Add a home/landing screen (route `/` before the caller) so the app has a front door
+instead of dropping straight into the board. It should offer: **New Game** / **Resume**
+(reuse the existing resume gate), **theme pick**, **Play** (enter the caller), plus clear
+entries to **Tickets**, **Room display**, and **Settings**. Move the theme picker here and
+in Settings (already there). Keep it plain — layout and flow, not decoration. The caller
+screen stays reachable and unchanged. DONE-WHEN: a first-time host lands on home, picks a
+theme, and starts a game without hunting for controls.
+
+### Task 13 · Flow/UX gaps — small, high-value, batch — Sonnet 5
+A grab-bag of the missing connective tissue. Keep each tiny:
+- **Open the room display from the host** — a button/QR that opens/links `?display=1`
+  (+ `&theme=<id>`), so the host doesn't hand-type the URL to cast.
+- **Persist the selected theme** — theme choice is `useState` today and resets on reload;
+  store it (settingsStore) so it survives a refresh, like the other prefs.
+- **Game-over screen** — right now 90/90 just shows a line; give a small "game complete"
+  state with New Game.
+- **First-run hint** — one-line "you draw, players mark their own tickets" so a new host
+  isn't confused by the no-auto-mark design.
+DONE-WHEN: host can cast the display in one tap, theme sticks across reloads, and a
+finished game has a clear end + restart.
+
+---
+
+## Post-V1 — new packs
+
+### Task 14 · Theme pack #2: football — Fable 5
 Use the §9 prompt in `THEME_PACK_GUIDE.md` verbatim. Football covers mythology's dead
 zone (65–87). Check numeric **spread**, not just count — 25 refs all under 40 is a worse
 pack than 18 spread evenly.
 
-### Task 12 · Custom family pack generator — Sonnet 5 (phrases are the user's)
+### Task 15 · Custom family pack generator — Sonnet 5 (phrases are the user's)
 Template slots (`{name}`, `{relation}`, `{running_joke}`) filled at setup, with a
 **mandatory host review before the game** (safety feature, guide §6). Highest-value
 feature; lives where mythology is weakest (41–79).
@@ -83,7 +125,7 @@ nudges · any money feature · third-party IP → **Never** (the airgap + the la
 Hiding the board from the ROOM screen → **No**, that's traditional and correct.
 Auto-call timer → optional accessibility toggle at most, never default.
 
-## Game-night test (run after 11)
+## Game-night test (run after 14)
 
 Sit in the room, don't touch the phone. Which phrases landed vs died (cut the dead ones)?
 Did anyone stop watching their ticket to watch a screen (that's a bug)? Did a claim
