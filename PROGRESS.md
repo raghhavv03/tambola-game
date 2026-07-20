@@ -188,12 +188,37 @@ This file is state, not rules — update it at the end of each phase.
   stage, plain default stage, host screen, draw keys still exact (1 key = 1
   draw)
 
+**Phase 8 — milestone trigger + host persistence**
+- **Milestone trigger** — `VerifierPanel.tsx` gained a `theme: Theme` prop (passed
+  from `App.tsx`). On a VALID ruling it shows that dividend's `theme.milestones`
+  phrase in a plain `text-amber-200` banner (same convention as `NumberDisplay`,
+  no new component, no animation). Clears on the next ruling or when the ticket ID
+  input changes. VerifierPanel-only by design: the display branch (`/?display=1`)
+  is never live at the same time as the verifier, so no cross-store field was added
+- **Host persistence** — `src/store/persist.ts` (host-only): two keys disjoint from
+  the player's `tambola:marks:` — `tambola:host:game` (`{seed, history, savedAt}`)
+  and `tambola:host:bogeys` (`Record<ticketId, number>`). Reads degrade silently to
+  "nothing found" on any parse/shape failure; writes return `boolean` and
+  `console.warn` on failure (never thrown, never silently swallowed)
+- `engine/caller.ts` exposes `seed` and a pure `replayCaller(seed, history)` that
+  reconstructs-and-verifies a caller from saved state (throws if history is
+  inconsistent with the seed's draw order — a corrupted save can't resurrect a
+  wrong board)
+- `gameStore`/`claimStore` autosave on their own mutations and expose
+  `loadSavedGame`/`loadSavedBogeys` + a `saveFailed` flag (App shows a quiet
+  save-failed indicator)
+- `src/store/gameSession.ts` — the ONLY code path allowed to touch both stores
+  together for resume/new-game, so the two tallies can never drift apart
+- `src/components/ResumeGamePrompt.tsx` — on load, if a saved game exists, host is
+  gated: resume the in-progress game or start a New Game (the latter clears both
+  keys atomically via gameSession). Wired into `App.tsx`
+- THE AIRGAP held: `airgap.test.ts` passed unmodified; no new file is reachable
+  from `/t`, no host file names the `tambola:marks:` prefix
+- Design spec + implementation plan for this phase lived in `docs/superpowers/`
+  (removed after landing — PROGRESS.md is the state record; git history retains them)
+
 ## Not started
 
-- No persistence of a game (seed/history) beyond in-memory state — a host refresh
-  loses the draw order and every bogey tally
-- Milestone phrases exist in packs but nothing shows them (the verifier is the
-  natural trigger — on a VALID ruling, show the dividend's phrase)
 - Display mode has no channel to the host's phone — drawing happens on the device
   the display runs on. A remote is a future decision, not an oversight; it must
   never route through `/t` or anything a player loads
