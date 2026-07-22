@@ -1,92 +1,109 @@
-# Tambola Host
+# Tambola Host 🎯
 
-A themed number-caller for a **human host** running a **physical** tambola (housie)
-game. The host taps to draw a number 1–90; the app shows it big and hands the host a
-themed phrase to say out loud. Players mark their own tickets — on paper, or on their
-own phone at `/t`. The matching happens in the player's head.
+> **A themed number caller & teleprompter for human hosts running physical Tambola (Housie) games.**
 
-It is a **prop for the host**, not a game platform.
+The host is the performer, the phone is the teleprompter, and the room is the stage. **Tambola Host** is designed as a physical party prop—not a automated digital game platform.
 
-## The thesis
+---
 
-> The host is the performer. The phone is the teleprompter. The room is the screen.
-> Automation would kill the game.
+## 💡 Core Philosophy
 
-Every design choice falls out of that one line:
+Traditional automation destroys the joy of Tambola. This project is built around strict design principles enforced **structurally at build time**:
 
-- **No auto-marking.** The app never marks a player's ticket. Hearing the number and
-  reaching for it *is* the game.
-- **No hints.** It never highlights, pulses, or nudges a called number on a player's
-  ticket, and never says "you missed one" or "1 away from Full House." If a player
-  misses a number, they miss it, and the app says nothing.
-- **No auto-calling.** The host draws each number by hand. No timer, no autoplay.
+- **No Auto-Marking:** The app never marks tickets automatically. Listening for numbers and marking them on paper or phone *is* the game.
+- **No Player Hints:** No highlight, pulsing, or notifications for missed numbers.
+- **No Auto-Calling:** The host manual draws every number. No automated timer or forced pace.
+- **Strict Airgap:** Player tickets (`/t`) receive data solely from the QR code URL. The player app bundle has **zero network connection, sockets, or shared state** with the host caller.
 
-These aren't settings. They're the product.
+---
 
-## THE AIRGAP
+## ✨ Key Features
 
-The rules above are enforced **structurally, not by policy.**
+- **📱 Interactive Host Controller:** Giant number displays, themed phrases to read aloud, 1–90 board tracking, history log, and instant claim verification.
+- **🎨 Theme Pack System:** Drop-in pure JSON theme packs (`themes/*.json`) with zero component modifications needed. Includes *Mythology (Puranic)* and *Minimal Plain* themes out of the box.
+- **📺 Room / Stage Display:** Dedicated TV/Projector layout (`/?display=1`) for broadcasting the called board to large screens via HDMI or casting.
+- **🛡️ Airgapped Player Tickets:** Independent ticket route (`/t#<id>`) compiled as a isolated JS bundle with automated build-time static import assertions (`src/player/airgap.test.ts`).
+- **⚡ Offline-First PWA & Native Android:** Installable web application with complete offline service worker precaching, plus native Android wrapper via Capacitor.
 
-The player's ticket route (`/t`) receives everything it will ever know from the QR's
-URL, and after that opens **no channel of any kind** to the caller — no socket, no poll,
-no fetch, no shared store. The host screen and the player screen are two separate
-bundles with two separate module graphs (`src/main.tsx` splits them by dynamic import).
-A test (`src/player/airgap.test.ts`) walks the player's import graph on disk and fails
-the build if any reachable module could touch the caller, a host store, or any network
-API — or even names the vocabulary of "called numbers."
+---
 
-The line is subtle and easy to get wrong in both directions: a room display showing a
-board of called numbers is **correct and traditional** — the physical board always did
-that. That same cross-reference happening **on the player's own ticket** is fatal. The
-line is not *what the app shows* — it is **who does the matching**, and that stays in
-the player's head.
+## 🛠️ Tech Stack
 
-## Themes are the product
+- **Framework:** [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- **Build Tool:** [Vite](https://vitejs.dev/)
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
+- **State Management:** [Zustand](https://zustand-demo.pmnd.rs/)
+- **Animations:** [Motion](https://motion.dev/)
+- **Testing:** [Vitest](https://vitest.dev/)
+- **PWA & Mobile:** `vite-plugin-pwa` + [Capacitor](https://capacitorjs.com/)
 
-The app is a renderer; the **theme packs** are the thing. A pack is pure JSON: a spoken
-phrase and a display glyph for each of the 90 numbers, six milestone phrases, and an
-optional visual identity (colors, validated for contrast at load).
+---
 
-Adding a pack is dropping a file in `themes/` — **zero component changes.** The renderer
-never special-cases a pack; a loader validates every pack at startup and crashes loudly
-on a missing key rather than falling back silently. Two packs ship: `mythology.json`
-(Puranic) and a deliberately minimal `plain.json` that proves the abstraction.
+## 🚀 Application Surfaces
 
-Authoring a pack: see **[THEME_PACK_GUIDE.md](THEME_PACK_GUIDE.md)**.
+| Surface | Route | Description |
+| :--- | :--- | :--- |
+| **Home Door** | `/` | Select theme preview cards, configure rules, start or resume games. |
+| **Host Caller** | `/` *(Active Game)* | Draw numbers 1–90, view themed phrases, board matrix, undo, and cast. |
+| **Player Ticket** | `/t#<id>` | Scanned ticket surface for players. Completely airgapped from caller state. |
+| **Room Display** | `/?display=1` | Stage view for TVs and projectors showing the live called numbers board. |
 
-## Surfaces
+---
 
-- **Home** (`/`) — the front door: pick a theme (live-preview cards), start or resume
-  a game, reach Tickets / Room display / Settings.
-- **Caller** (`/`, after Start) — giant number, themed phrase, DRAW, a 1–90 board,
-  undo, tickets, claim verifier, settings, cast-to-display.
-- **Player ticket** (`/t#<id>`) — a scanned ticket, tap to mark. Airgapped.
-- **Room display** (`/?display=1&theme=<id>`) — the stage for a TV/projector; cast or
-  HDMI. Esc / "‹ Host" exits back to the app.
+## 🏁 Getting Started
 
-The active theme's design tokens paint every host surface; the player ticket stays
-deliberately neutral (it must not know which pack the host is using — see the airgap).
-Full element-by-element breakdown: **[UI_INVENTORY.md](UI_INVENTORY.md)**.
+### Prerequisites
 
-Runs fully offline as an installable PWA; wraps to a native Android app via Capacitor.
-No backend, no accounts, no analytics, no money features — real-money gaming is illegal
-in India (PROG Act 2025), and none of it belongs in a party prop anyway.
+- **Node.js** (v18 or higher recommended)
+- **npm** or **pnpm**
 
-## Stack
+### Installation & Setup
 
-Vite · React 19 · TypeScript · Tailwind v4 · zustand · motion · Vitest · vite-plugin-pwa
-· Capacitor. Game logic (`src/engine/`) is pure TypeScript with its own tests.
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/your-username/tambola-host.git
+   cd tambola-host
+   ```
 
-## Run it
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+   Open `http://localhost:5173` in your browser. Access `http://localhost:5173/?display=1` for the Stage view.
+
+---
+
+## 🧪 Testing & Building
 
 ```bash
-npm install
-npm run dev      # http://localhost:5173  (add ?display=1 for the stage)
-npm test         # engine + persistence tests
-npm run build    # typecheck + production build (PWA + service worker)
+# Run unit & airgap boundary tests
+npm test
+
+# Type-check & generate production web build (PWA & Service Worker)
+npm run build
+
+# Preview production build locally
+npm run preview
+
+# Sync Capacitor native Android app
+npm run cap:sync
 ```
 
-Deploy is any static host; `vercel.json` ships the SPA rewrite so scanned `/t` links
-resolve. See **[RUNBOOK.md](RUNBOOK.md)** for the build sequence and native/Play-Store
-steps, **[PROGRESS.md](PROGRESS.md)** for current state, and **[CLAUDE.md](CLAUDE.md)**
-for the non-negotiables.
+---
+
+## 📚 Documentation & Guides
+
+- 🎨 **[Theme Pack Authoring Guide](THEME_PACK_GUIDE.md):** How to create and register custom JSON theme packs.
+- 📖 **[Runbook & Native Android Deployment](RUNBOOK.md):** Build sequences, PWA configuration, and Android Play Store packaging.
+- 🎨 **[UI & Token Inventory](UI_INVENTORY.md):** Element-by-element design token breakdown and theme mapping.
+
+---
+
+## 📄 License
+
+MIT License. Developed for hosting fun, physical Housie / Tambola events!
